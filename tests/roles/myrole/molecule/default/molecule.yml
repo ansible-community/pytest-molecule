@@ -1,0 +1,24 @@
+---
+driver:
+  name: docker
+log: true
+platforms:
+
+  - name: centos7-master
+    hostname: centos7-master
+    image: centos:7
+    dockerfile: ../Dockerfile.j2
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_VERBOSITY: "2"
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - converge
+    - destroy
+lint:
+  enabled: false
