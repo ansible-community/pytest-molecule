@@ -1,8 +1,34 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import logging
 import os
 import pytest
 import subprocess
+import sys
+
+
+def pytest_configure(config):
+
+    import docker
+
+    # validate docker conectivity
+    c = docker.from_env(timeout=5, version="auto")
+    if not c.ping():
+        raise Exception("Failed to ping docker server.")
+
+    # validate selinux availability
+    if sys.platform == 'linux':
+        try:
+            import selinux  # noqa
+        except Exception as e:
+            logging.error(
+                "It appears that you are trying to use "
+                "molecule with a Python interpreter that does not have the "
+                "libselinux python bindings installed. These can only be "
+                "installed using your distro package manager and are specific "
+                "to each python version. Common package names: "
+                "libselinux-python python2-libselinux python3-libselinux")
+            raise e
 
 
 def pytest_collect_file(parent, path):
