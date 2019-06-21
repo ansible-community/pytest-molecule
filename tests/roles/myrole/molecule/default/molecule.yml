@@ -1,7 +1,7 @@
 ---
 driver:
   name: docker
-log: true
+
 platforms:
 
   - name: centos7-master
@@ -13,12 +13,14 @@ provisioner:
   name: ansible
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
-    ANSIBLE_VERBOSITY: "2"
+  log: true
+
 scenario:
   test_sequence:
     - destroy
     - create
     - converge
     - destroy
+
 lint:
   enabled: false
