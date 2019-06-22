@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name='pytest-molecule',
-    version='0.2.1',
+    version='0.2.2',
     author='Sorin Sbarnea',
     author_email='sorin.sbarnea@gmail.com',
     maintainer='Sorin Sbarnea',
