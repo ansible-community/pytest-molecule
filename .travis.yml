@@ -32,18 +32,6 @@ jobs:
       name: deploy
       if: tag IS present AND type != cron
       env: TOXENV=upload
-      deploy:
-        - provider: pypi
-          user: pycontribs
-          password:
-            secure: >
-              N8Vl84PucnJwAl5PPRZ0YUMTgBrXcbbEJh5LZudv/HBps7abhu3iv5+FT+w+8W4DcFjPoCC3FqVj34sLLEshf2SOktGm/RH9wnVEwGgBFcsob1c4PrdoZ13Zk/KwjvX9OfPJ4uzceUT9ZZXv62OJzQulRTdDkGLSoXj5s0noUhxaCsyHG4wLnv9n/eVecN3ou+oqi464cOAvRVsp7Hw7f8XywYI6r9Yt0pQkBtGrwXORC6Bmrl5Q7PiBAHWBcJmWLyFRwrak6z/BDBNqBZC2nWn1ZPYoo23tEWmeLTZPkPiJad9hM4rc9NuGyRr1uZAEqhBNn8mFGv+CMfzZALDTpLu8PN74XHA3PfFx9gF3wHZyIhtFQ2CcivGUGUsn9HE6SqhXgjRgCSwRXuvOonLqT5KMX7ZnTP1EtdLXhWju9bP3GOat/iy85bBZXxU/LirqBtpcV6TeOtkKeYo5DIVwFi6yj3iYXUYLEf2LDcCSBz1ZAc5pTX8tWypXeXs9DWeGo35ZkukTetVhrHlBaZ+7HpI+IBhEua8Uzg2hJ+9Y0xl5+ewZgqbWbbBog0xV/G59777uklGa+oUxmsuojwEmWOAmiAl4+dUIuqNuTW4gkPjXATqPLnKPZRoOVSHXanhSUp+xhta6JwqhtSSa1ke4Xnfewnx2Le+Y+Pz0MOfZgKg=
-          distributions: dists
-          skip-cleanup: true
-          "on":
-            all_branches: true
-            tags: true
-            repo: pycontribs/pytest-molecule
 
 install:
   - pip install tox
