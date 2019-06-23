@@ -25,6 +25,9 @@ jobs:
     - name: py37
       python: "3.7"
       env: TOXENV=py37
+    - name: devel
+      python: "3.7"
+      env: TOXENV=devel
     - stage: deploy
       name: deploy
       if: tag IS present AND type != cron
