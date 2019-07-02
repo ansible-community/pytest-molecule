@@ -11,8 +11,10 @@ def pytest_configure(config):
 
     import docker
 
-    # validate docker conectivity
-    c = docker.from_env(timeout=5, version="auto")
+    # validate docker connectivity
+    # Default docker value is 60s but we want to fail faster
+    # With parallel execution 5s proved to give errors.
+    c = docker.from_env(timeout=10, version="auto")
     if not c.ping():
         raise Exception("Failed to ping docker server.")
 
