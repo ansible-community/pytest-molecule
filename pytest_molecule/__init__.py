@@ -22,7 +22,7 @@ def pytest_configure(config):
     if sys.platform == 'linux':
         try:
             import selinux  # noqa
-        except Exception as e:
+        except Exception:
             logging.error(
                 "It appears that you are trying to use "
                 "molecule with a Python interpreter that does not have the "
@@ -30,7 +30,8 @@ def pytest_configure(config):
                 "installed using your distro package manager and are specific "
                 "to each python version. Common package names: "
                 "libselinux-python python2-libselinux python3-libselinux")
-            raise e
+            # we do not re-raise this exception because missing or broken
+            # selinux bindings are not guaranteed to fail molecule execution.
 
 
 def pytest_collect_file(parent, path):
