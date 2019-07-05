@@ -1,0 +1,41 @@
+---
+
+- name: gather_fact fallback block
+  block:
+    - name: Attempt to gather facts
+      setup:
+        gather_subset: all
+
+  rescue:
+    - name: Attempt to bootstrap python
+      become_user: root
+      raw: |
+        /bin/bash -c "apt-get update && apt-get install -y python3 python3-apt sudo"
+
+    - name: Retry gather facts
+      setup:
+        gather_subset: all
+
+- name: Include OS specific variables
+  include_vars: "{{ item }}"
+  failed_when: false
+  loop:
+    - "{{ ansible_os_family | lower }}.yml"
+    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:2] | join('-') | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:3] | join('-') | lower }}.yml"
+
+# at this stage we may not even have sudo installed
+- name: pre-install system packages
+  when: pre_packages is defined
+  become_user: root
+  package:
+    name: "{{ pre_packages }}"
+
+- name: install system packages
+  when: packages is defined
+  become: true
+  package:
+    name: "{{ packages }}"

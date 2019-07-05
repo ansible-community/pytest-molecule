@@ -1,0 +1,12 @@
+# packages to be installed ASAP, like those enabling new repos
+pre_packages:
+  - epel-release
+  - sudo
+
+packages:
+  - bash
+  - rsync
+  - gcc  # compiling psutil
+  - python2-devel
+  - python2-pip
+  - python2-psutil

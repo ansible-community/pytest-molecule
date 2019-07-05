@@ -1,0 +1,44 @@
+---
+driver:
+  name: docker
+
+platforms:
+
+  - name: centos7
+    hostname: centos7
+    image: centos:7
+    dockerfile: ../Dockerfile.j2
+
+  - name: fedora
+    hostname: fedora
+    image: fedora:latest
+    dockerfile: ../Dockerfile.j2
+
+  - name: rhel8
+    hostname: rhel8
+    image: ubi8/python-36
+    registry:
+      url: registry.access.redhat.com
+    dockerfile: ../Dockerfile.j2
+
+  - name: ubuntu
+    hostname: ubuntu
+    image: ubuntu:latest
+    dockerfile: ../Dockerfile.j2
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+  log: true
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - destroy
+
+lint:
+  enabled: false

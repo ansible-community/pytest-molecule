@@ -1,13 +1,9 @@
 ---
 driver:
-  name: docker
+  name: delegated
 
 platforms:
-
-  - name: centos7-master
-    hostname: centos7-master
-    image: centos:7
-    dockerfile: ../Dockerfile.j2
+  - name: localhost
 
 provisioner:
   name: ansible
@@ -17,10 +13,7 @@ provisioner:
 
 scenario:
   test_sequence:
-    - destroy
-    - create
     - converge
-    - destroy
 
 lint:
   enabled: false

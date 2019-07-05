@@ -29,8 +29,10 @@ Installation
 
 You can install "pytest-molecule" via `pip`_ from `PyPI`_::
 
-    $ pip install pytest-molecule
+    $ PIP_NO_BUILD_ISOLATION=false pip install pytest-molecule
 
+PIP_NO_BUILD_ISOLATION is needed only on ancient python distributions to workaround
+https://github.com/pypa/pip/issues/5229
 
 Contributing
 ------------

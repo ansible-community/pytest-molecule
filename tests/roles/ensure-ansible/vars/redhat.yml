@@ -1,0 +1,12 @@
+# Assumes to be valid for all python3 first distros:
+# RHEL>=8
+# centos>=8
+# fedora>=28
+packages:
+  - bash
+  - gcc  # compiling psutil
+  - python3-devel
+  - python3-libselinux
+  - python3-psutil
+  - rsync
+  - sudo

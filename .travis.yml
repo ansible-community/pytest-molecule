@@ -1,8 +1,6 @@
 ---
 dist: xenial
 # Config file for automatic testing at travis-ci.org
-
-sudo: false
 services:
   - docker
 language: python
@@ -10,12 +8,10 @@ language: python
 jobs:
   fast_finish: true
   include:
-    - name: lint
+    # combined env improve execution speed on travis considerably
+    - name: lint,py27,distros
       python: "3.7"
-      env: TOXENV=lint
-    - name: py27
-      python: "2.7"
-      env: TOXENV=py27
+      env: TOXENV=lint,py27,distros
     - name: py35
       python: "3.5"
       env: TOXENV=py35
@@ -37,10 +33,14 @@ install:
   - pip install tox
 
 script:
-  - tox
+  - travis_wait tox
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
+
+branches:
+  only:
+    - master
 
 cache:
   directories:

@@ -1,0 +1,42 @@
+---
+
+- name: Converge
+  hosts: all
+  # avoid gather as setup module fails when python is missing (ubuntu:latest)
+  gather_facts: false
+  vars:
+    test_dir: /root/src
+  tasks:
+
+    - name: ensure-ansible role
+      include_role:
+        name: ensure-ansible
+
+    - name: Create a directory if it does not exist
+      file:
+        path: "{{ test_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy package wheel(s)
+      copy:
+        src: "{{ item }}"
+        dest: "{{ test_dir }}/"
+      with_fileglob:
+        - "{{ playbook_dir }}/../../../../../dist/*.whl"
+
+    # Setting locales to avoid click error:
+    # https://click.palletsprojects.com/en/7.x/python3/
+    # we really need a minimum version of setuptools
+    # PIP_NO_BUILD_ISOLATION workaround for older pips with partial pep514
+    - name: Test install to user
+      shell: |
+        set -euox pipefail
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        {{ ansible_python.executable }} -m pip install --user 'setuptools>=40.0'
+        PIP_NO_BUILD_ISOLATION=false {{ ansible_python.executable }} -m pip install --user {{ test_dir }}/*.whl
+        {{ ansible_python.executable }} -m molecule --version
+      args:
+        # ubuntu defaults to /bin/sh which chokes on pipefail
+        executable: /bin/bash
