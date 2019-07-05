@@ -9,18 +9,18 @@ jobs:
   fast_finish: true
   include:
     # combined env improve execution speed on travis considerably
-    - name: lint,py27,distros
+    - name: lint,py37,distros
       python: "3.7"
-      env: TOXENV=lint,py27,distros
-    - name: py35
-      python: "3.5"
-      env: TOXENV=py35
+      env: TOXENV=lint,py37,distros
     - name: py36
       python: "3.6"
       env: TOXENV=py36
-    - name: py37
-      python: "3.7"
-      env: TOXENV=py37
+    - name: py35
+      python: "3.5"
+      env: TOXENV=py35
+    - name: py27
+      python: "2.7"
+      env: TOXENV=py27
     - name: devel
       python: "3.7"
       env: TOXENV=devel
