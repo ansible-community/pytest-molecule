@@ -14,6 +14,10 @@ pytest-molecule
     :target: https://travis-ci.org/pycontribs/pytest-molecule
     :alt: See Build Status on Travis CI
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/python/black
+    :alt: Python Black Code Style
+
 PyTest Molecule Plugin :: auto detects and runs molecule tests
 
 ----

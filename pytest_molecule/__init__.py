@@ -19,7 +19,7 @@ def pytest_configure(config):
         raise Exception("Failed to ping docker server.")
 
     # validate selinux availability
-    if sys.platform == 'linux' and os.path.isfile("/etc/selinux/config"):
+    if sys.platform == "linux" and os.path.isfile("/etc/selinux/config"):
         try:
             import selinux  # noqa
         except Exception:
@@ -29,7 +29,8 @@ def pytest_configure(config):
                 "libselinux python bindings installed. These can only be "
                 "installed using your distro package manager and are specific "
                 "to each python version. Common package names: "
-                "libselinux-python python2-libselinux python3-libselinux")
+                "libselinux-python python2-libselinux python3-libselinux"
+            )
             # we do not re-raise this exception because missing or broken
             # selinux bindings are not guaranteed to fail molecule execution.
 
@@ -41,7 +42,7 @@ def pytest_collect_file(parent, path):
 
 class MoleculeFile(pytest.File):
     def collect(self):
-        yield MoleculeItem('test', self)
+        yield MoleculeItem("test", self)
 
     def __str__(self):
         return str(self.fspath.relto(os.getcwd()))
@@ -53,11 +54,11 @@ class MoleculeItem(pytest.Item):
 
     def runtest(self):
         folders = self.fspath.dirname.split(os.sep)
-        cwd = os.path.abspath(os.path.join(self.fspath.dirname, '../..'))
+        cwd = os.path.abspath(os.path.join(self.fspath.dirname, "../.."))
         scenario = folders[-1]
         role = folders[-3]  # noqa
-        cmd = [sys.executable, '-m', 'molecule', self.name, '-s', scenario]
-        print("running: %s (from %s)" % (" " .join(cmd), cwd))
+        cmd = [sys.executable, "-m", "molecule", self.name, "-s", scenario]
+        print("running: %s (from %s)" % (" ".join(cmd), cwd))
 
         try:
             # Workaround for STDOUT/STDERR line ordering issue:
@@ -67,19 +68,20 @@ class MoleculeItem(pytest.Item):
                 cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                universal_newlines=True)
+                universal_newlines=True,
+            )
             for line in p.stdout:
                 print(line, end="")
             p.wait()
             if p.returncode != 0:
                 pytest.fail(
-                    "Error code %s returned by: %s" % (
-                        p.returncode, " ".join(cmd)),
-                    pytrace=False)
+                    "Error code %s returned by: %s" % (p.returncode, " ".join(cmd)),
+                    pytrace=False,
+                )
         except Exception as e:
             pytest.fail(
-                "Exception %s returned by: %s" % (e, " ".join(cmd)),
-                pytrace=False)
+                "Exception %s returned by: %s" % (e, " ".join(cmd)), pytrace=False
+            )
 
     def reportinfo(self):
         return self.fspath, 0, "usecase: %s" % self.name
