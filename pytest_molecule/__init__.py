@@ -19,7 +19,7 @@ def pytest_configure(config):
         raise Exception("Failed to ping docker server.")
 
     # validate selinux availability
-    if sys.platform == 'linux':
+    if sys.platform == 'linux' and os.path.isfile("/etc/selinux/config"):
         try:
             import selinux  # noqa
         except Exception:
