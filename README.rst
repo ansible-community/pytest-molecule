@@ -28,6 +28,9 @@ and runs them as pytest tests.
 Once you install pytest-molecule you should be able to just run `pytest` in order
 to run molecule on all roles and scenarios.
 
+Optionally you can define `MOLECULE_OPTS` for passing extra parameters to each
+molecule call.
+
 Installation
 ------------
 

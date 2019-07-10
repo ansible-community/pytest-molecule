@@ -4,7 +4,9 @@ import logging
 import os
 import pytest
 import subprocess
+import shlex
 import sys
+from pipes import quote
 
 
 def pytest_configure(config):
@@ -58,7 +60,14 @@ class MoleculeItem(pytest.Item):
         scenario = folders[-1]
         role = folders[-3]  # noqa
         cmd = [sys.executable, "-m", "molecule", self.name, "-s", scenario]
-        print("running: %s (from %s)" % (" ".join(cmd), cwd))
+
+        # We append the additional options to molecule call, allowing user to
+        # control how molecule is called by pytest-molecule
+        opts = os.environ.get("MOLECULE_OPTS")
+        if opts:
+            cmd.extend(shlex.split(opts))
+
+        print("running: %s (from %s)" % (" ".join(quote(arg) for arg in cmd), cwd))
 
         try:
             # Workaround for STDOUT/STDERR line ordering issue:
