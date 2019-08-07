@@ -32,6 +32,11 @@
         dest: "{{ test_dir }}/"
       with_fileglob:
         - "{{ playbook_dir }}/../../../../../dist/*.whl"
+      register: result
+
+    - when: not result.results
+      fail:
+        msg: "No wheel was found: {{ result }}"
 
     # Setting locales to avoid click error:
     # https://click.palletsprojects.com/en/7.x/python3/
@@ -40,20 +45,23 @@
     - name: Test install to user without extras
       shell: |
         set -euox pipefail
+        export PIP_NO_BUILD_ISOLATION=false
         {{ ansible_python.executable }} -m pip install --user 'setuptools>=40.0'
-        PIP_NO_BUILD_ISOLATION=false {{ ansible_python.executable }} -m pip install --user {{ test_dir }}/*.whl
+        {{ ansible_python.executable }} -m pip install --user {{ item.dest }}
         {{ ansible_python.executable }} -m molecule --version
-        {{ ansible_python.executable }} -c "import docker" && exit 1 || echo "passed, docker should not be installed"
+        {{ ansible_python.executable }} -c 'import docker' && exit 1 || echo 'passed, docker should not be installed'
         {# tests that we can install docker extra #}
       args:
         # ubuntu defaults to /bin/sh which chokes on pipefail
         executable: /bin/bash
+      with_items: "{{ result.results }}"
 
     - name: Test install to user with docker extra
       shell: |
         set -euox pipefail
-        find {{ test_dir }}/ -name "*.whl" -exec {{ ansible_python.executable }} -m pip install --user echo {}[docker] \;
-        {{ ansible_python.executable }} -c "import docker"
+        {{ ansible_python.executable }} -m pip install --user echo '{{ item.dest }}[docker]'
+        {{ ansible_python.executable }} -c 'import docker'
       args:
         # ubuntu defaults to /bin/sh which chokes on pipefail
         executable: /bin/bash
+      with_items: "{{ result.results }}"

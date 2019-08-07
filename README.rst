@@ -22,34 +22,53 @@ PyTest Molecule Plugin :: auto detects and runs molecule tests
 
 ----
 
-This plugin enables pytest discovery of all molecule.yml files inside the
+This plugin enables pytest discovery of all ``molecule.yml`` files inside the
 codebase and runs them as pytest tests.
 
-Once you install pytest-molecule you should be able to just run `pytest` in
+Once you install pytest-molecule you should be able to just run ``pytest`` in
 order to run molecule on all roles and scenarios.
 
-Optionally you can define `MOLECULE_OPTS` for passing extra parameters to each
-molecule call.
+Optionally you can define ``MOLECULE_OPTS`` for passing extra parameters to
+each molecule call.
+
+Discovered tests do have molecule ``driver`` and ``platforms`` added as
+markers_, so you can selectively limit which test types to run:
+
+.. code-block:: shell
+
+    # Lists all tests that uses docker
+    $ pytest --collect-only -m docker
+
+    # Runs scenarios with platform named centos7 and delegated driver:
+    $ pytest -m delegated -m centos7
+
+Please note that at this moment molecule will run the entire scenario if the
+markers are platforms, this is not *yet* a way to limit which platforms are
+executed inside a specific scenario.
+
+All tests are added the ``molecule`` marker.
 
 Installation
 ------------
 
-You can install "pytest-molecule" via `pip`_ from `PyPI`_::
+You can install "pytest-molecule" via pip_ from PyPI_::
+
+.. code-block:: shell
 
     $ PIP_NO_BUILD_ISOLATION=false pip install pytest-molecule
 
-PIP_NO_BUILD_ISOLATION is needed only on ancient python distributions to
+``PIP_NO_BUILD_ISOLATION`` is needed only on ancient python distributions to
 workaround https://github.com/pypa/pip/issues/5229
 
 Contributing
 ------------
-Contributions are very welcome. Tests can be run with `tox`_, please ensure
+Contributions are very welcome. Tests can be run with tox_, please ensure
 the coverage at least stays the same before you submit a pull request.
 
 License
 -------
 
-Distributed under the terms of the `MIT`_ license, "pytest-molecule" is free
+Distributed under the terms of the MIT_ license, "pytest-molecule" is free
 and open source software
 
 
@@ -65,3 +84,4 @@ description.
 .. _`tox`: https://tox.readthedocs.io/en/latest/
 .. _`pip`: https://pypi.org/project/pip/
 .. _`PyPI`: https://pypi.org/project
+.. _markers: http://doc.pytest.org/en/latest/example/markers.html
