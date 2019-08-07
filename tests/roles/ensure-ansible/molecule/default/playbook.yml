@@ -4,6 +4,9 @@
   hosts: all
   # avoid gather as setup module fails when python is missing (ubuntu:latest)
   gather_facts: false
+  environment:
+    LC_ALL: C.UTF-8
+    LANG: C.UTF-8
   vars:
     test_dir: /root/src
   tasks:
@@ -11,6 +14,11 @@
     - name: ensure-ansible role
       include_role:
         name: ensure-ansible
+
+    - name: install findutils on Fedora
+      when: ansible_distribution == 'Fedora'
+      package:
+        name: findutils
 
     - name: Create a directory if it does not exist
       file:
@@ -29,14 +37,23 @@
     # https://click.palletsprojects.com/en/7.x/python3/
     # we really need a minimum version of setuptools
     # PIP_NO_BUILD_ISOLATION workaround for older pips with partial pep514
-    - name: Test install to user
+    - name: Test install to user without extras
       shell: |
         set -euox pipefail
-        export LC_ALL=C.UTF-8
-        export LANG=C.UTF-8
         {{ ansible_python.executable }} -m pip install --user 'setuptools>=40.0'
         PIP_NO_BUILD_ISOLATION=false {{ ansible_python.executable }} -m pip install --user {{ test_dir }}/*.whl
         {{ ansible_python.executable }} -m molecule --version
+        {{ ansible_python.executable }} -c "import docker" && exit 1 || echo "passed, docker should not be installed"
+        {# tests that we can install docker extra #}
+      args:
+        # ubuntu defaults to /bin/sh which chokes on pipefail
+        executable: /bin/bash
+
+    - name: Test install to user with docker extra
+      shell: |
+        set -euox pipefail
+        find {{ test_dir }}/ -name "*.whl" -exec {{ ansible_python.executable }} -m pip install --user echo {}[docker] \;
+        {{ ansible_python.executable }} -c "import docker"
       args:
         # ubuntu defaults to /bin/sh which chokes on pipefail
         executable: /bin/bash
