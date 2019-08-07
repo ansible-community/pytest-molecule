@@ -23,6 +23,9 @@ galaxy_info:
       versions:
         - Xenial
         - Bionic
+    - name: Debian
+      version:
+        - 10
 
   galaxy_tags: []
 

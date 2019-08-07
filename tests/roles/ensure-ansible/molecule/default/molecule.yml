@@ -26,6 +26,11 @@ platforms:
     image: ubuntu:latest
     dockerfile: ../Dockerfile.j2
 
+  - name: debian
+    hostname: debian
+    image: debian:latest
+    dockerfile: ../Dockerfile.j2
+
 provisioner:
   name: ansible
   env:
