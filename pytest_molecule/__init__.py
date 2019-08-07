@@ -7,9 +7,31 @@ import subprocess
 import shlex
 import sys
 from pipes import quote
+import yaml
 
 
 def pytest_configure(config):
+
+    # TODO(ssbarnea): Replace this an API call once molecule implements it
+    # https://github.com/ansible/molecule/issues/2213
+    drivers = [
+        "azure",
+        "delegated",
+        "docker",
+        "ec2",
+        "gce",
+        "hetznercloud",
+        "linode",
+        "lxc",
+        "lxd",
+        "openstack",
+        "vagrant",
+    ]
+    for driver in drivers:
+        config.addinivalue_line(
+            "markers", "{0}: mark test to run only when {0} is available".format(driver)
+        )
+    config.addinivalue_line("markers", "molecule: mark used by all molecule scenarios")
 
     import docker
 
@@ -53,6 +75,19 @@ class MoleculeFile(pytest.File):
 class MoleculeItem(pytest.Item):
     def __init__(self, name, parent):
         super(MoleculeItem, self).__init__(name, parent)
+        stream = open(str(self.fspath), "r")
+        data = yaml.load(stream, Loader=yaml.SafeLoader)
+        # we add the driver as mark
+        self.molecule_driver = data["driver"]["name"]
+        self.add_marker(self.molecule_driver)
+        # we also add platforms as marks
+        for x in data["platforms"]:
+            p = x["name"]
+            self.config.addinivalue_line(
+                "markers", "{0}: molecule platform name is {0}".format(p)
+            )
+            self.add_marker(p)
+        self.add_marker("molecule")
 
     def runtest(self):
         folders = self.fspath.dirname.split(os.sep)
@@ -96,7 +131,7 @@ class MoleculeItem(pytest.Item):
         return self.fspath, 0, "usecase: %s" % self.name
 
     def __str__(self):
-        return self.name
+        return "{}[{}]".format(self.name, self.molecule_driver)
 
 
 class MoleculeException(Exception):
