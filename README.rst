@@ -22,11 +22,11 @@ PyTest Molecule Plugin :: auto detects and runs molecule tests
 
 ----
 
-This plugin enables pytest discovery of all molecule.yml files inside the codebase
-and runs them as pytest tests.
+This plugin enables pytest discovery of all molecule.yml files inside the
+codebase and runs them as pytest tests.
 
-Once you install pytest-molecule you should be able to just run `pytest` in order
-to run molecule on all roles and scenarios.
+Once you install pytest-molecule you should be able to just run `pytest` in
+order to run molecule on all roles and scenarios.
 
 Optionally you can define `MOLECULE_OPTS` for passing extra parameters to each
 molecule call.
@@ -38,8 +38,8 @@ You can install "pytest-molecule" via `pip`_ from `PyPI`_::
 
     $ PIP_NO_BUILD_ISOLATION=false pip install pytest-molecule
 
-PIP_NO_BUILD_ISOLATION is needed only on ancient python distributions to workaround
-https://github.com/pypa/pip/issues/5229
+PIP_NO_BUILD_ISOLATION is needed only on ancient python distributions to
+workaround https://github.com/pypa/pip/issues/5229
 
 Contributing
 ------------
@@ -49,13 +49,15 @@ the coverage at least stays the same before you submit a pull request.
 License
 -------
 
-Distributed under the terms of the `MIT`_ license, "pytest-molecule" is free and open source software
+Distributed under the terms of the `MIT`_ license, "pytest-molecule" is free
+and open source software
 
 
 Issues
 ------
 
-If you encounter any problems, please `file an issue`_ along with a detailed description.
+If you encounter any problems, please `file an issue`_ along with a detailed
+description.
 
 .. _`MIT`: http://opensource.org/licenses/MIT
 .. _`file an issue`: https://github.com/ssbarnea/pytest-molecule/issues
