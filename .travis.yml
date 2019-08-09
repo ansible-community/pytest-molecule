@@ -45,6 +45,7 @@ before_cache:
 branches:
   only:
     - master
+    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
 cache:
   directories:
