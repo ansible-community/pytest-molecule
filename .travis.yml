@@ -28,6 +28,10 @@ jobs:
       name: deploy
       if: tag IS present AND type != cron
       env: TOXENV=upload
+    - stage: deploy
+      script:
+        - tox -e upload
+      if: tag IS present AND type != cron
 
 install:
   - pip install tox
