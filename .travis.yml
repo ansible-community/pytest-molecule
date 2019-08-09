@@ -1,4 +1,5 @@
 ---
+conditions: v1
 dist: xenial
 # Config file for automatic testing at travis-ci.org
 services:
@@ -26,12 +27,10 @@ jobs:
       env: TOXENV=devel
     - stage: deploy
       name: deploy
-      if: tag IS present AND type != cron
       env: TOXENV=upload
-    - stage: deploy
-      script:
-        - tox -e upload
-      if: tag IS present AND type != cron
+      if: repo == "pycontribs/pytest-molecule" AND tag IS present AND type != cron
+      addons: {}
+      services: []
 
 install:
   - pip install tox
@@ -42,14 +41,10 @@ script:
 before_cache:
   - rm -rf $HOME/.cache/pip/log
 
-branches:
-  only:
-    - master
-    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
-
 cache:
   directories:
     - $HOME/.cache/pip
+
 addons:
   apt:
     packages:
