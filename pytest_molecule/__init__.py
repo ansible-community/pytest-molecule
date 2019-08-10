@@ -33,15 +33,6 @@ def pytest_configure(config):
         )
     config.addinivalue_line("markers", "molecule: mark used by all molecule scenarios")
 
-    import docker
-
-    # validate docker connectivity
-    # Default docker value is 60s but we want to fail faster
-    # With parallel execution 5s proved to give errors.
-    c = docker.from_env(timeout=10, version="auto")
-    if not c.ping():
-        raise Exception("Failed to ping docker server.")
-
     # validate selinux availability
     if sys.platform == "linux" and os.path.isfile("/etc/selinux/config"):
         try:
