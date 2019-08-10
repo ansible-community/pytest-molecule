@@ -8,26 +8,12 @@ import shlex
 import sys
 from pipes import quote
 import yaml
+from molecule.config import molecule_drivers
 
 
 def pytest_configure(config):
 
-    # TODO(ssbarnea): Replace this an API call once molecule implements it
-    # https://github.com/ansible/molecule/issues/2213
-    drivers = [
-        "azure",
-        "delegated",
-        "docker",
-        "ec2",
-        "gce",
-        "hetznercloud",
-        "linode",
-        "lxc",
-        "lxd",
-        "openstack",
-        "vagrant",
-    ]
-    for driver in drivers:
+    for driver in molecule_drivers():
         config.addinivalue_line(
             "markers", "{0}: mark test to run only when {0} is available".format(driver)
         )
