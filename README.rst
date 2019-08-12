@@ -48,6 +48,17 @@ executed inside a specific scenario.
 
 All tests are added the ``molecule`` marker.
 
+This plugin also adds a new pytest option named
+``--molecule-unavailable-driver=skip`` which can be used to tell it what to do
+when molecule drivers are not loading. Current default is ``skip`` but you
+can choose other marks like ``xfail`` or empty string if you want to disable
+this functionality.
+
+Current implementation of this feature validates only ``docker`` and
+``delegated`` drivers.  Due to the potential destructive nature of delegated
+driver, scenarios running it will run only if Ansible detects one of the
+following variables as defined: ``zuul``, ``use_for_testing``.
+
 Installation
 ------------
 
