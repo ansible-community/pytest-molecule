@@ -29,6 +29,14 @@
     - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:2] | join('-') | lower }}.yml"
     - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version.split('.')[0:3] | join('-') | lower }}.yml"
 
+# Avoid Fedora: Failed to synchronize cache for repo
+- name: clean package cache
+  when: ansible_pkg_mgr == 'dnf'
+  become_user: root
+  shell: dnf clean all
+  args:
+    warn: false
+
 # at this stage we may not even have sudo installed
 - name: pre-install system packages
   when: pre_packages is defined
@@ -37,7 +45,7 @@
     name: "{{ pre_packages }}"
   register: result
   retries: 3
-  delay: 30
+  delay: 5
   until: result is success
 
 - name: install system packages
@@ -47,5 +55,5 @@
     name: "{{ packages }}"
   register: result
   retries: 3
-  delay: 30
+  delay: 5
   until: result is success
