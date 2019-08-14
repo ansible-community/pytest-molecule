@@ -35,9 +35,17 @@
   become_user: root
   package:
     name: "{{ pre_packages }}"
+  register: result
+  retries: 3
+  delay: 30
+  until: result is success
 
 - name: install system packages
   when: packages is defined
   become: true
   package:
     name: "{{ packages }}"
+  register: result
+  retries: 3
+  delay: 30
+  until: result is success
