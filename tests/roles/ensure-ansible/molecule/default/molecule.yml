@@ -2,17 +2,20 @@
 driver:
   name: docker
 
+# network_mode: host needed to assure internet access
 platforms:
 
   - name: centos7
     hostname: centos7
     image: centos:7
     dockerfile: ../Dockerfile.j2
+    network_mode: host
 
   - name: fedora
     hostname: fedora
     image: fedora:latest
     dockerfile: ../Dockerfile.j2
+    network_mode: host
 
   - name: rhel8
     hostname: rhel8
@@ -20,16 +23,19 @@ platforms:
     registry:
       url: registry.access.redhat.com
     dockerfile: ../Dockerfile.j2
+    network_mode: host
 
   - name: ubuntu
     hostname: ubuntu
     image: ubuntu:latest
     dockerfile: ../Dockerfile.j2
+    network_mode: host
 
   - name: debian
     hostname: debian
     image: debian:latest
     dockerfile: ../Dockerfile.j2
+    network_mode: host
 
 provisioner:
   name: ansible
