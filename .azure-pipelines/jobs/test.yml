@@ -38,3 +38,5 @@ jobs:
 
       - bash: tox -e py$(PY)
         displayName: Run tox
+        env:
+          PYTEST_OPTIONS: -s
