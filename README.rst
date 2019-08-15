@@ -62,7 +62,7 @@ following variables as defined: ``zuul``, ``use_for_testing``.
 Installation
 ------------
 
-You can install "pytest-molecule" via pip_ from PyPI_::
+You can install "pytest-molecule" via pip_ from PyPI_:
 
 .. code-block:: shell
 
