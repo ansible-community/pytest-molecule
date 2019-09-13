@@ -8,7 +8,12 @@ import shlex
 import sys
 from pipes import quote
 import yaml
-from molecule.config import molecule_drivers
+
+try:
+    from molecule.api import drivers
+except ImportError:
+    # molecule<3.0
+    from molecule.api import molecule_drivers as drivers
 
 
 def pytest_addoption(parser):
@@ -34,7 +39,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
 
     config.option.molecule = {}
-    for driver in molecule_drivers():
+    for driver in drivers():
         config.addinivalue_line(
             "markers", "{0}: mark test to run only when {0} is available".format(driver)
         )
