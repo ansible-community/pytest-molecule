@@ -8,6 +8,7 @@ import shlex
 import sys
 from pipes import quote
 import yaml
+import warnings
 
 try:
     from molecule.api import drivers
@@ -38,91 +39,102 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
 
-    config.option.molecule = {}
-    for driver in drivers():
-        config.addinivalue_line(
-            "markers", "{0}: mark test to run only when {0} is available".format(driver)
-        )
-        config.option.molecule[driver] = {"available": True}
-        # TODO(ssbarnea): extend molecule itself to allow it to report usable drivers
-        if driver == "docker":
-            try:
-                import docker
+    # We hide DeprecationWarnings thrown by driver loading because these are
+    # outside our control and worse: they are displayed even on projects that
+    # have no molecule tests at all as pytest_configure() is called during
+    # collection, causing spam.
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-                # validate docker connectivity
-                # Default docker value is 60s but we want to fail faster
-                # With parallel execution 5s proved to give errors.
-                c = docker.from_env(timeout=10, version="auto")
-                if not c.ping():
-                    raise Exception("Failed to ping docker server.")
-
-            except Exception as e:
-                msg = "Molecule {} driver is not available due to: {}.".format(
-                    driver, e
-                )
-                if config.option.molecule_unavailable_driver:
-                    msg += " We will tag scenarios using it with '{}' marker.".format(
-                        config.option.molecule_unavailable_driver
-                    )
-                logging.getLogger().warning(msg)
-                config.option.molecule[driver]["available"] = False
-
-        if driver == "delegated":
-            # To protect ourselves from case where a molecule scenario using
-            # `delegated` is accidentally altering the localhost on a developer
-            # machine, we verify run delegated tests only when ansible `zuul`
-            # or `use_for_testing` vars are defined.
-            cmd = [
-                "ansible",
-                "localhost",
-                "-e",
-                "ansible_connection=local",
-                "-o",
-                "-m",
-                "shell",
-                "-a",
-                "exit {% if zuul is defined or use_for_testing is defined %}0{% else %}1{% endif %}",
-            ]
-            try:
-                p = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    universal_newlines=True,
-                )
-                p.wait()
-                if p.returncode != 0:
-                    raise Exception(
-                        "Error code %s returned by: %s" % (p.returncode, " ".join(cmd))
-                    )
-            except Exception:
-                msg = "Molecule {} driver was not enabled because missing zuul.build variable in current inventory.".format(
-                    driver
-                )
-                if config.option.molecule_unavailable_driver:
-                    msg += " We will tag scenarios using it with '{}' marker.".format(
-                        config.option.molecule_unavailable_driver
-                    )
-                logging.getLogger().warning(msg)
-                config.option.molecule[driver]["available"] = False
-
-    config.addinivalue_line("markers", "molecule: mark used by all molecule scenarios")
-
-    # validate selinux availability
-    if sys.platform == "linux" and os.path.isfile("/etc/selinux/config"):
-        try:
-            import selinux  # noqa
-        except Exception:
-            logging.error(
-                "It appears that you are trying to use "
-                "molecule with a Python interpreter that does not have the "
-                "libselinux python bindings installed. These can only be "
-                "installed using your distro package manager and are specific "
-                "to each python version. Common package names: "
-                "libselinux-python python2-libselinux python3-libselinux"
+        config.option.molecule = {}
+        for driver in drivers():
+            config.addinivalue_line(
+                "markers",
+                "{0}: mark test to run only when {0} is available".format(driver),
             )
-            # we do not re-raise this exception because missing or broken
-            # selinux bindings are not guaranteed to fail molecule execution.
+            config.option.molecule[driver] = {"available": True}
+            # TODO(ssbarnea): extend molecule itself to allow it to report usable drivers
+            if driver == "docker":
+                try:
+                    import docker
+
+                    # validate docker connectivity
+                    # Default docker value is 60s but we want to fail faster
+                    # With parallel execution 5s proved to give errors.
+                    c = docker.from_env(timeout=10, version="auto")
+                    if not c.ping():
+                        raise Exception("Failed to ping docker server.")
+
+                except Exception as e:
+                    msg = "Molecule {} driver is not available due to: {}.".format(
+                        driver, e
+                    )
+                    if config.option.molecule_unavailable_driver:
+                        msg += " We will tag scenarios using it with '{}' marker.".format(
+                            config.option.molecule_unavailable_driver
+                        )
+                    logging.getLogger().warning(msg)
+                    config.option.molecule[driver]["available"] = False
+
+            if driver == "delegated":
+                # To protect ourselves from case where a molecule scenario using
+                # `delegated` is accidentally altering the localhost on a developer
+                # machine, we verify run delegated tests only when ansible `zuul`
+                # or `use_for_testing` vars are defined.
+                cmd = [
+                    "ansible",
+                    "localhost",
+                    "-e",
+                    "ansible_connection=local",
+                    "-o",
+                    "-m",
+                    "shell",
+                    "-a",
+                    "exit {% if zuul is defined or use_for_testing is defined %}0{% else %}1{% endif %}",
+                ]
+                try:
+                    p = subprocess.Popen(
+                        cmd,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        universal_newlines=True,
+                    )
+                    p.wait()
+                    if p.returncode != 0:
+                        raise Exception(
+                            "Error code %s returned by: %s"
+                            % (p.returncode, " ".join(cmd))
+                        )
+                except Exception:
+                    msg = "Molecule {} driver was not enabled because missing zuul.build variable in current inventory.".format(
+                        driver
+                    )
+                    if config.option.molecule_unavailable_driver:
+                        msg += " We will tag scenarios using it with '{}' marker.".format(
+                            config.option.molecule_unavailable_driver
+                        )
+                    logging.getLogger().warning(msg)
+                    config.option.molecule[driver]["available"] = False
+
+        config.addinivalue_line(
+            "markers", "molecule: mark used by all molecule scenarios"
+        )
+
+        # validate selinux availability
+        if sys.platform == "linux" and os.path.isfile("/etc/selinux/config"):
+            try:
+                import selinux  # noqa
+            except Exception:
+                logging.error(
+                    "It appears that you are trying to use "
+                    "molecule with a Python interpreter that does not have the "
+                    "libselinux python bindings installed. These can only be "
+                    "installed using your distro package manager and are specific "
+                    "to each python version. Common package names: "
+                    "libselinux-python python2-libselinux python3-libselinux"
+                )
+                # we do not re-raise this exception because missing or broken
+                # selinux bindings are not guaranteed to fail molecule execution.
 
 
 def pytest_collect_file(parent, path):
