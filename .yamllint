@@ -8,5 +8,7 @@ rules:
     allow-non-breakable-words: true
     allow-non-breakable-inline-mappings: true
   key-duplicates: enable
+  truthy:
+    allowed-values: ['true', 'false', 'on']
 ignore: |
   .tox
