@@ -2,23 +2,40 @@
 conditions: v1
 dist: xenial
 # Config file for automatic testing at travis-ci.org
+
 services:
   - docker
 language: python
 
+branches:
+  only:
+    - master
+    - /[0-9]+\.[0-9]+\.[0-9]+(.*)?$/
+
+cache:
+  - pip
+  - directories:
+      - "node_modules"
+      - $HOME/.cache
+os:
+  - linux
+before_install:
+  - which tox >/dev/null || if [ -z ${VIRTUAL_ENV+x} ]; then python -m pip install --user tox tox-pyenv; else python -m pip install tox tox-pyenv; fi
 jobs:
   fast_finish: true
   include:
-    # combined env improve execution speed on travis considerably
     - name: lint,py37,distros
-      python: "3.7"
       env: TOXENV=lint,py37,distros
-    - name: py36
-      python: "3.6"
-      env: TOXENV=py36
+      python: "3.7"
     - name: py35
       python: "3.5"
       env: TOXENV=py35
+    - name: py36
+      python: "3.6"
+      env: TOXENV=py36
+    - name: py38
+      python: "3.8"
+      env: TOXENV=py38
     - name: py27
       python: "2.7"
       env: TOXENV=py27
@@ -27,31 +44,22 @@ jobs:
       env: TOXENV=devel
     - stage: deploy
       name: deploy
-      env: TOXENV=upload
-      if: repo == "pycontribs/pytest-molecule" AND tag IS present AND type != cron
+      if: tag IS present AND type != cron
       addons: {}
       services: []
-
-install:
-  - pip install tox
-
+      env: TOXENV=upload
 script:
-  # Ping stdout every 9 minutes or Travis kills build,
-  # while travis_wait does not show the command output while processing.
-  # https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
   # https://github.com/travis-ci/travis-ci/issues/4190#issuecomment-353342526
-  - |
-    while sleep 9m; do
-    echo "====[ $SECONDS seconds still running ]===="
-    done &
-  - tox
+  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
+  - python -m tox
+  - kill %1
+
+env:
+  global:
+    - PIP_DISABLE_PIP_VERSION_CHECK=1
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
-
-cache:
-  directories:
-    - $HOME/.cache/pip
 
 addons:
   apt:
