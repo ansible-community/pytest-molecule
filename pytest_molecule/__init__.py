@@ -76,46 +76,6 @@ def pytest_configure(config):
                     logging.getLogger().warning(msg)
                     config.option.molecule[driver]["available"] = False
 
-            if driver == "delegated":
-                # To protect ourselves from case where a molecule scenario using
-                # `delegated` is accidentally altering the localhost on a developer
-                # machine, we verify run delegated tests only when ansible `zuul`
-                # or `use_for_testing` vars are defined.
-                cmd = [
-                    "ansible",
-                    "localhost",
-                    "-e",
-                    "ansible_connection=local",
-                    "-o",
-                    "-m",
-                    "shell",
-                    "-a",
-                    "exit {% if zuul is defined or use_for_testing is defined %}0{% else %}1{% endif %}",
-                ]
-                try:
-                    p = subprocess.Popen(
-                        cmd,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                        universal_newlines=True,
-                    )
-                    p.wait()
-                    if p.returncode != 0:
-                        raise Exception(
-                            "Error code %s returned by: %s"
-                            % (p.returncode, " ".join(cmd))
-                        )
-                except Exception:
-                    msg = "Molecule {} driver was not enabled because missing zuul.build variable in current inventory.".format(
-                        driver
-                    )
-                    if config.option.molecule_unavailable_driver:
-                        msg += " We will tag scenarios using it with '{}' marker.".format(
-                            config.option.molecule_unavailable_driver
-                        )
-                    logging.getLogger().warning(msg)
-                    config.option.molecule[driver]["available"] = False
-
         config.addinivalue_line(
             "markers", "molecule: mark used by all molecule scenarios"
         )
