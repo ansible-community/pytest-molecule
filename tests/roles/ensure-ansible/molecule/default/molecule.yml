@@ -7,13 +7,13 @@ platforms:
 
   - name: centos7
     hostname: centos7
-    image: centos:7
+    image: pycontribs/centos:7
     dockerfile: ../Dockerfile.j2
     network_mode: host
 
   - name: fedora
     hostname: fedora
-    image: fedora:latest
+    image: pycontribs/fedora:latest
     dockerfile: ../Dockerfile.j2
     network_mode: host
 
@@ -27,13 +27,13 @@ platforms:
 
   - name: ubuntu
     hostname: ubuntu
-    image: ubuntu:latest
+    image: pycontribs/ubuntu:latest
     dockerfile: ../Dockerfile.j2
     network_mode: host
 
   - name: debian
     hostname: debian
-    image: debian:latest
+    image: pycontribs/debian:latest
     dockerfile: ../Dockerfile.j2
     network_mode: host
 
