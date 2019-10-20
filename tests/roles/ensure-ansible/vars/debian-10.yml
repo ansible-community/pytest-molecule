@@ -1,2 +1,5 @@
+pre_packages:
+  - sudo
+
 packages:
   - python3-pip
