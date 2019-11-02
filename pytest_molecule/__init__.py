@@ -47,7 +47,7 @@ def pytest_configure(config):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         config.option.molecule = {}
-        for driver in drivers():
+        for driver in map(str, drivers()):
             config.addinivalue_line(
                 "markers",
                 "{0}: mark test to run only when {0} is available".format(driver),
