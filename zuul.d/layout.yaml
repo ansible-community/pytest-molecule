@@ -1,0 +1,15 @@
+---
+# zuul.d/layout.yaml
+- project:
+    check:
+      jobs: &defaults
+        - ansible-tox-linters:
+            vars:
+              tox_envlist: lint
+        - ansible-tox-py27
+        - ansible-tox-py35
+        - ansible-tox-py36
+        - ansible-tox-py37
+        - ansible-tox-py38
+    gate:
+      jobs: *defaults
