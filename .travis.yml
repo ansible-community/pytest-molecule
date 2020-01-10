@@ -60,11 +60,3 @@ env:
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
-
-addons:
-  apt:
-    packages:
-      - lxc
-      - lxc-dev
-      - lxd
-      - lxd-client
