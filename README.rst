@@ -10,9 +10,9 @@ pytest-molecule
     :target: https://pypi.org/project/pytest-molecule
     :alt: Python versions
 
-.. image:: https://travis-ci.org/pycontribs/pytest-molecule.svg?branch=master
-    :target: https://travis-ci.org/pycontribs/pytest-molecule
-    :alt: See Build Status on Travis CI
+.. image:: https://zuul-ci.org/gated.svg
+    :target: https://dashboard.zuul.ansible.com/t/ansible/builds?project=pycontribs/selinux
+    :alt: See Build Status on Zuul CI
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/python/black
