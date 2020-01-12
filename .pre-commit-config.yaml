@@ -32,6 +32,10 @@ repos:
         files: \.(yaml|yml)$
         types: [file, yaml]
         entry: yamllint --strict
+  - repo: https://github.com/pycontribs/zuul-lintlint.git
+    rev: "0.1"
+    hooks:
+      - id: zuul-lint
   - repo: https://github.com/codespell-project/codespell.git
     rev: v1.16.0
     hooks:
