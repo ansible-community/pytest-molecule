@@ -7,4 +7,5 @@ set -euxo pipefail
 # us to override how is called. Once these are addressed we will switch back
 # non-sudo mode.
 PYTHON=$(command -v python3 python | head -n1)
+
 sudo $PYTHON -m pip install -U tox "zipp<0.6.0;python_version=='2.7'"
