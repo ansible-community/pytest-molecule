@@ -50,6 +50,3 @@ scenario:
     - prepare
     - converge
     - destroy
-
-lint:
-  enabled: false
