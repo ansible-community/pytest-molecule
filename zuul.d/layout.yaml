@@ -6,26 +6,18 @@
     vars:
       tox_envlist: devel
 
-- job:
-    name: ansible-tox-distros
-    parent: ansible-tox-molecule
-    # 30min is not enough, 1h should be:
-    timeout: 3600
-    vars:
-      tox_envlist: distros
-
 - project:
     check:
       jobs: &defaults
+        - ansible-tox-devel
         - ansible-tox-linters:
             vars:
               tox_envlist: lint
+        - ansible-tox-packaging
         - ansible-tox-py27
-        - ansible-tox-py36
         - ansible-tox-py35
+        - ansible-tox-py36
         - ansible-tox-py37
         - ansible-tox-py38
-        - ansible-tox-devel
-        - ansible-tox-distros
     gate:
       jobs: *defaults

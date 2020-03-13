@@ -46,17 +46,17 @@
       shell: |
         set -eux
         export PIP_NO_BUILD_ISOLATION=false
-        {{ ansible_python.executable }} -m pip install --user 'setuptools>=40.0'
-        {{ ansible_python.executable }} -m pip install --user 'wheel'
-        {{ ansible_python.executable }} -m pip install --user {{ item.dest }}
-        {{ ansible_python.executable }} -m molecule --version
-        {{ ansible_python.executable }} -c 'import docker' && exit 1 || echo 'passed, docker should not be installed'
+        {# ansible_python.executable is not reliable for finding the recommended python #}
+        type python3 && PYTHON=python3 || {
+          PYTHON=python;
+          {# ancient versions of pip do not know about version specifiers #}
+          $PYTHON -m pip install --user 'zipp<0.6.0';
+          }
+        $PYTHON -m pip install --user 'setuptools>=40.0'
+        $PYTHON -m pip install --user 'wheel'
+        $PYTHON -m pip install --user {{ item.dest }}
+        $PYTHON -m molecule --version
         {# tests that we can install docker extra #}
-      with_items: "{{ result.results }}"
-
-    - name: Test install to user with docker extra
-      shell: |
-        set -eux
-        {{ ansible_python.executable }} -m pip install --user echo '{{ item.dest }}[docker]'
-        {{ ansible_python.executable }} -c 'import docker'
+        $PYTHON -m pip install --user echo '{{ item.dest }}[docker]'
+        $PYTHON -c 'import docker'
       with_items: "{{ result.results }}"
