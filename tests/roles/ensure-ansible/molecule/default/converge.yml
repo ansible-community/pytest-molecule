@@ -48,6 +48,10 @@
         export PIP_NO_BUILD_ISOLATION=false
         {{ ansible_python.executable }} -m pip install --user 'setuptools>=40.0'
         {{ ansible_python.executable }} -m pip install --user 'wheel'
+        {% if ansible_python.version.major == 2 %}
+        {# ancient versions of pip do not know about version specifiers #}
+        {{ ansible_python.executable }} -m pip install --user 'zipp<0.6.0'
+        {% endif %}
         {{ ansible_python.executable }} -m pip install --user {{ item.dest }}
         {{ ansible_python.executable }} -m molecule --version
         {{ ansible_python.executable }} -c 'import docker' && exit 1 || echo 'passed, docker should not be installed'
