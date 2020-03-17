@@ -13,7 +13,6 @@
         - ansible-tox-linters:
             vars:
               tox_envlist: lint
-        - ansible-tox-packaging
         - ansible-tox-py27
         - ansible-tox-py35
         - ansible-tox-py36
