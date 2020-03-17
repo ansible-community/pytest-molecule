@@ -2,46 +2,80 @@
 driver:
   name: docker
 
-# network_mode: host needed to assure internet access
 platforms:
+
+
+  # pip cache cannot be shared due to multiple bugs:
+  # - python2 cache incompatible with python3 https://github.com/pypa/pip/issues/5250
+  # - concurrency issues
+
+  - name: alpine
+    hostname: alpine
+    image: pycontribs/alpine:latest
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-alpine:/root/.cache/pip:rw
 
   - name: centos7
     hostname: centos7
     image: pycontribs/centos:7
-    dockerfile: ../Dockerfile.j2
-    network_mode: host
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-centos7:/root/.cache/pip:rw
 
-  - name: fedora
-    hostname: fedora
-    image: pycontribs/fedora:latest
-    dockerfile: ../Dockerfile.j2
-    network_mode: host
-
-  - name: rhel8
-    hostname: rhel8
-    image: ubi8/python-36
-    registry:
-      url: registry.access.redhat.com
-    dockerfile: ../Dockerfile.j2
-    network_mode: host
-
-  - name: ubuntu
-    hostname: ubuntu
-    image: pycontribs/ubuntu:latest
-    dockerfile: ../Dockerfile.j2
-    network_mode: host
+  - name: centos8
+    hostname: centos8
+    image: pycontribs/centos:8
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-centos8:/root/.cache/pip:rw
 
   - name: debian
     hostname: debian
     image: pycontribs/debian:latest
-    dockerfile: ../Dockerfile.j2
-    network_mode: host
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-debian:/root/.cache/pip:rw
+
+  - name: fedora
+    hostname: fedora
+    image: pycontribs/fedora:latest
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-fedora:/root/.cache/pip:rw
+
+  - name: opensuse
+    hostname: opensuse
+    image: pycontribs/opensuse:latest
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-opensuse:/root/.cache/pip:rw
+
+  # - name: rhel8
+  #   hostname: rhel8
+  #   image: ubi8/python-36
+  #   registry:
+  #     url: registry.access.redhat.com
+  #   dockerfile: ../Dockerfile.j2
+  #   volumes:
+  #     - /root/.cache/pip-rhel8:/root/.cache/pip:rw
+
+  - name: ubuntu
+    hostname: ubuntu
+    image: pycontribs/ubuntu:latest
+    pre_build_image: true
+    volumes:
+      - /root/.cache/pip-ubuntu:/root/.cache/pip:rw
 
 provisioner:
   name: ansible
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
   log: true
+  config_options:
+    defaults:
+      interpreter_python: auto
+      verbosity: 1
 
 scenario:
   test_sequence:
