@@ -112,6 +112,7 @@ class MoleculeFile(pytest.File):
 
 class MoleculeItem(pytest.Item):
     def __init__(self, name, parent):
+        self.funcargs = {}
         super(MoleculeItem, self).__init__(name, parent)
         stream = open(str(self.fspath), "r")
         data = yaml.load(stream, Loader=yaml.SafeLoader)
