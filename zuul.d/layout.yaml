@@ -1,22 +1,31 @@
 ---
 # zuul.d/layout.yaml
-- job:
-    name: ansible-tox-devel
-    parent: ansible-tox-py36
-    vars:
-      tox_envlist: devel
-
 - project:
+    templates:
+      - publish-to-pypi
     check:
       jobs: &defaults
-        - ansible-tox-devel
-        - ansible-tox-linters:
+        - molecule-tox-linters
+        - molecule-tox-packaging
+        - molecule-tox-py27-centos-7:
             vars:
-              tox_envlist: lint
-        - ansible-tox-py27
-        - ansible-tox-py35
-        - ansible-tox-py36
-        - ansible-tox-py37
-        - ansible-tox-py38
+              tox_environment:
+                PYTEST_REQPASS: 1
+        - molecule-tox-py36-centos-8:
+            vars:
+              tox_environment:
+                PYTEST_REQPASS: 1
+        - molecule-tox-py36-ubuntu-bionic:
+            vars:
+              tox_environment:
+                PYTEST_REQPASS: 1
+        - molecule-tox-py37-fedora-30:
+            vars:
+              tox_environment:
+                PYTEST_REQPASS: 1
+        - molecule-tox-devel-centos-8:
+            vars:
+              tox_environment:
+                PYTEST_REQPASS: 1
     gate:
       jobs: *defaults
