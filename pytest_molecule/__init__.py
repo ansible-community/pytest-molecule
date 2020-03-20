@@ -99,12 +99,18 @@ def pytest_configure(config):
 
 def pytest_collect_file(parent, path):
     if path.basename == "molecule.yml":
-        return MoleculeFile(path, parent)
+        if hasattr(MoleculeFile, "from_parent"):
+            return MoleculeFile.from_parent(fspath=path, parent=parent)
+        else:
+            return MoleculeFile(path, parent)
 
 
 class MoleculeFile(pytest.File):
     def collect(self):
-        yield MoleculeItem("test", self)
+        if hasattr(MoleculeItem, "from_parent"):
+            yield MoleculeItem.from_parent(name="test", parent=self)
+        else:
+            yield MoleculeItem("test", self)
 
     def __str__(self):
         return str(self.fspath.relto(os.getcwd()))
@@ -114,24 +120,24 @@ class MoleculeItem(pytest.Item):
     def __init__(self, name, parent):
         self.funcargs = {}
         super(MoleculeItem, self).__init__(name, parent)
-        stream = open(str(self.fspath), "r")
-        data = yaml.load(stream, Loader=yaml.SafeLoader)
-        # we add the driver as mark
-        self.molecule_driver = data["driver"]["name"]
-        self.add_marker(self.molecule_driver)
-        # we also add platforms as marks
-        for x in data["platforms"]:
-            p = x["name"]
-            self.config.addinivalue_line(
-                "markers", "{0}: molecule platform name is {0}".format(p)
-            )
-            self.add_marker(p)
-        self.add_marker("molecule")
-        if (
-            self.config.option.molecule_unavailable_driver
-            and not self.config.option.molecule[self.molecule_driver]["available"]
-        ):
-            self.add_marker(self.config.option.molecule_unavailable_driver)
+        with open(str(self.fspath), "r") as stream:
+            data = yaml.load(stream, Loader=yaml.SafeLoader)
+            # we add the driver as mark
+            self.molecule_driver = data["driver"]["name"]
+            self.add_marker(self.molecule_driver)
+            # we also add platforms as marks
+            for x in data["platforms"]:
+                p = x["name"]
+                self.config.addinivalue_line(
+                    "markers", "{0}: molecule platform name is {0}".format(p)
+                )
+                self.add_marker(p)
+            self.add_marker("molecule")
+            if (
+                self.config.option.molecule_unavailable_driver
+                and not self.config.option.molecule[self.molecule_driver]["available"]
+            ):
+                self.add_marker(self.config.option.molecule_unavailable_driver)
 
     def runtest(self):
         folders = self.fspath.dirname.split(os.sep)
@@ -150,21 +156,41 @@ class MoleculeItem(pytest.Item):
         try:
             # Workaround for STDOUT/STDERR line ordering issue:
             # https://github.com/pytest-dev/pytest/issues/5449
-            p = subprocess.Popen(
-                cmd,
-                cwd=cwd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True,
-            )
-            for line in p.stdout:
-                print(line, end="")
-            p.wait()
-            if p.returncode != 0:
-                pytest.fail(
-                    "Error code %s returned by: %s" % (p.returncode, " ".join(cmd)),
-                    pytrace=False,
+
+            if sys.version_info.major == 2:
+                # https://bugs.python.org/issue13202
+                p = subprocess.Popen(
+                    cmd,
+                    cwd=cwd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
                 )
+                for line in p.stdout:
+                    print(line, end="")
+                p.wait()
+                if p.returncode != 0:
+                    pytest.fail(
+                        "Error code %s returned by: %s" % (p.returncode, " ".join(cmd)),
+                        pytrace=False,
+                    )
+            else:
+                with subprocess.Popen(
+                    cmd,
+                    cwd=cwd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
+                ) as p:
+                    for line in p.stdout:
+                        print(line, end="")
+                    p.wait()
+                    if p.returncode != 0:
+                        pytest.fail(
+                            "Error code %s returned by: %s"
+                            % (p.returncode, " ".join(cmd)),
+                            pytrace=False,
+                        )
         except Exception as e:
             pytest.fail(
                 "Exception %s returned by: %s" % (e, " ".join(cmd)), pytrace=False
