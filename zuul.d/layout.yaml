@@ -7,10 +7,6 @@
       jobs: &defaults
         - molecule-tox-linters
         - molecule-tox-packaging
-        - molecule-tox-py27-centos-7:
-            vars:
-              tox_environment:
-                PYTEST_REQPASS: 1
         - molecule-tox-py36-centos-8:
             vars:
               tox_environment:
