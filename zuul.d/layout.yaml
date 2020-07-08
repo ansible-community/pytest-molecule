@@ -6,7 +6,9 @@
     check:
       jobs: &defaults
         - molecule-tox-linters
-        - molecule-tox-packaging
+        - molecule-tox-packaging:
+            # ensure-podman fails on ubuntu
+            voting: false
         - molecule-tox-py36-centos-8:
             vars:
               tox_environment:
@@ -15,6 +17,8 @@
             vars:
               tox_environment:
                 PYTEST_REQPASS: 1
+            # ensure-podman fails on ubuntu
+            voting: false
         - molecule-tox-py37-fedora-30:
             vars:
               tox_environment:
