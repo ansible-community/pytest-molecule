@@ -50,9 +50,8 @@ All tests are added the ``molecule`` marker.
 
 This plugin also adds a new pytest option named
 ``--molecule-unavailable-driver=skip`` which can be used to tell it what to do
-when molecule drivers are not loading. Current default is ``skip`` but you
-can choose other marks like ``xfail`` or empty string if you want to disable
-this functionality.
+when molecule drivers are not loading. Current default is ``None`` but you
+can choose marks like ``skip`` or ``xfail``.
 
 Installation
 ------------

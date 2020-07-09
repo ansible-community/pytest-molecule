@@ -21,9 +21,9 @@ def pytest_addoption(parser):
     group = parser.getgroup("molecule")
     help_msg = (
         "What marker to add to molecule scenarios when driver is "
-        "unavailable. (ex: skip, xfail)"
+        "unavailable. (ex: skip, xfail). Default: None"
     )
-    default = "skip"
+    default = None
     dest = "molecule_unavailable_driver"
 
     group.addoption(
