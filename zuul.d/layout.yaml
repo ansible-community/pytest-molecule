@@ -5,6 +5,7 @@
       - publish-to-pypi
     check:
       jobs: &defaults
+        - ansible-tox-py38
         - molecule-tox-linters
         - molecule-tox-packaging:
             # ensure-podman fails on ubuntu
