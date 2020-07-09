@@ -2,6 +2,7 @@
 from __future__ import print_function
 import logging
 import os
+import pkg_resources
 import pytest
 import subprocess
 import shlex
@@ -38,6 +39,27 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    INTERESTING_ENV_VARS = [
+        "ANSIBLE",
+        "MOLECULE",
+        "DOCKER",
+        "PODMAN",
+        "VAGRANT",
+        "VIRSH",
+        "ZUUL",
+    ]
+
+    # Add extra information that may be key for debugging failures
+    for p in ["ansible", "molecule"]:
+        config._metadata["Packages"][p] = pkg_resources.get_distribution(p).version
+
+    # Adds interesting env vars
+    env = ""
+    for k, v in sorted(os.environ.items()):
+        for a in INTERESTING_ENV_VARS:
+            if k.startswith(a):
+                env += f"{k}={v} "
+    config._metadata["env"] = env
 
     # We hide DeprecationWarnings thrown by driver loading because these are
     # outside our control and worse: they are displayed even on projects that
