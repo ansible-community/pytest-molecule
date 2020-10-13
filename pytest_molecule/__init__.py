@@ -92,8 +92,10 @@ def pytest_configure(config):
                         driver, e
                     )
                     if config.option.molecule_unavailable_driver:
-                        msg += " We will tag scenarios using it with '{}' marker.".format(
-                            config.option.molecule_unavailable_driver
+                        msg += (
+                            " We will tag scenarios using it with '{}' marker.".format(
+                                config.option.molecule_unavailable_driver
+                            )
                         )
                     logging.getLogger().warning(msg)
                     config.option.molecule[driver]["available"] = False
