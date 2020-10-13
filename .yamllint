@@ -10,5 +10,7 @@ rules:
   key-duplicates: enable
   truthy:
     allowed-values: ['true', 'false', 'on']
+  # https://github.com/adrienverge/yamllint/issues/141
+  comments-indentation: disable
 ignore: |
   .tox
