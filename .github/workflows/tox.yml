@@ -29,9 +29,9 @@ jobs:
             PREFIX: PYTEST_REQPASS=1
           - tox_env: py39
             PREFIX: PYTEST_REQPASS=1
-          # - tox_env: devel
-          #   PREFIX: PYTEST_REQPASS=1
-          # - tox_env: packaging
+          - tox_env: devel
+            PREFIX: PYTEST_REQPASS=1
+          - tox_env: packaging
 
     steps:
       - uses: actions/checkout@v1
