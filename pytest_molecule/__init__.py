@@ -16,6 +16,7 @@ try:
 except ImportError:
     # molecule<3.0
     from molecule.api import molecule_drivers as drivers
+from molecule.config import ansible_version
 
 
 def pytest_addoption(parser):
@@ -50,8 +51,12 @@ def pytest_configure(config):
     ]
 
     # Add extra information that may be key for debugging failures
-    for p in ["ansible", "molecule"]:
+    for p in ["molecule"]:
         config._metadata["Packages"][p] = pkg_resources.get_distribution(p).version
+
+    if "Tools" not in config._metadata:
+        config._metadata["Tools"] = {}
+    config._metadata["Tools"]["ansible"] = str(ansible_version())
 
     # Adds interesting env vars
     env = ""
