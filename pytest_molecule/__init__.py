@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
+"""pytest-molecule plugin implementation."""
+# pylint: disable=protected-access
 from __future__ import print_function
+
 import logging
 import os
+import shlex
+import subprocess
+import sys
+import warnings
+from pipes import quote
+from typing import TYPE_CHECKING, Optional
+
 import pkg_resources
 import pytest
-import subprocess
-import shlex
-import sys
-from pipes import quote
 import yaml
-import warnings
-
-try:
-    from molecule.api import drivers
-except ImportError:
-    # molecule<3.0
-    from molecule.api import molecule_drivers as drivers
+from molecule.api import drivers
 from molecule.config import ansible_version
+
+if TYPE_CHECKING:
+    from _pytest.nodes import Node
 
 
 def pytest_addoption(parser):
+    """Inject new command line options to pytest."""
     group = parser.getgroup("molecule")
     help_msg = (
         "What marker to add to molecule scenarios when driver is "
@@ -40,7 +44,8 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
-    INTERESTING_ENV_VARS = [
+    """Pytest hook for loading our specific configuration."""
+    interesting_env_vars = [
         "ANSIBLE",
         "MOLECULE",
         "DOCKER",
@@ -51,8 +56,10 @@ def pytest_configure(config):
     ]
 
     # Add extra information that may be key for debugging failures
-    for p in ["molecule"]:
-        config._metadata["Packages"][p] = pkg_resources.get_distribution(p).version
+    for package in ["molecule"]:
+        config._metadata["Packages"][package] = pkg_resources.get_distribution(
+            package
+        ).version
 
     if "Tools" not in config._metadata:
         config._metadata["Tools"] = {}
@@ -60,10 +67,10 @@ def pytest_configure(config):
 
     # Adds interesting env vars
     env = ""
-    for k, v in sorted(os.environ.items()):
-        for a in INTERESTING_ENV_VARS:
-            if k.startswith(a):
-                env += f"{k}={v} "
+    for key, value in sorted(os.environ.items()):
+        for var_name in interesting_env_vars:
+            if key.startswith(var_name):
+                env += f"{key}={value} "
     config._metadata["env"] = env
 
     # We hide DeprecationWarnings thrown by driver loading because these are
@@ -80,21 +87,20 @@ def pytest_configure(config):
                 "{0}: mark test to run only when {0} is available".format(driver),
             )
             config.option.molecule[driver] = {"available": True}
-            # TODO(ssbarnea): extend molecule itself to allow it to report usable drivers
             if driver == "docker":
                 try:
-                    import docker
+                    import docker  # pylint: disable=unused-import,import-outside-toplevel,import-error
 
                     # validate docker connectivity
                     # Default docker value is 60s but we want to fail faster
                     # With parallel execution 5s proved to give errors.
-                    c = docker.from_env(timeout=10, version="auto")
-                    if not c.ping():
-                        raise Exception("Failed to ping docker server.")
+                    connection = docker.from_env(timeout=10, version="auto")
+                    if not connection.ping():
+                        raise MoleculeException("Failed to ping docker server.")
 
-                except Exception as e:
+                except (ImportError, MoleculeException) as exc:
                     msg = "Molecule {} driver is not available due to: {}.".format(
-                        driver, e
+                        driver, exc
                     )
                     if config.option.molecule_unavailable_driver:
                         msg += (
@@ -112,8 +118,8 @@ def pytest_configure(config):
         # validate selinux availability
         if sys.platform == "linux" and os.path.isfile("/etc/selinux/config"):
             try:
-                import selinux  # noqa
-            except Exception:
+                import selinux  # noqa pylint: disable=unused-import,import-error,import-outside-toplevel
+            except ImportError:
                 logging.error(
                     "It appears that you are trying to use "
                     "molecule with a Python interpreter that does not have the "
@@ -126,41 +132,53 @@ def pytest_configure(config):
                 # selinux bindings are not guaranteed to fail molecule execution.
 
 
-def pytest_collect_file(parent, path):
+def pytest_collect_file(parent, path) -> Optional["Node"]:
+    """Transform each found molecule.yml into a pytest test."""
     if path.basename == "molecule.yml":
         if hasattr(MoleculeFile, "from_parent"):
             return MoleculeFile.from_parent(fspath=path, parent=parent)
-        else:
-            return MoleculeFile(path, parent)
+        return MoleculeFile(path, parent)
+    return None
 
 
 class MoleculeFile(pytest.File):
+    """Wrapper class for molecule files."""
+
     def collect(self):
+        """Test generator."""
         if hasattr(MoleculeItem, "from_parent"):
             yield MoleculeItem.from_parent(name="test", parent=self)
         else:
             yield MoleculeItem("test", self)
 
     def __str__(self):
+        """Return test name string representation."""
         return str(self.fspath.relto(os.getcwd()))
 
 
 class MoleculeItem(pytest.Item):
+    """A molecule test.
+
+    Pytest supports multiple tests per file, molecule only one "test".
+    """
+
     def __init__(self, name, parent):
+        """Construct MoleculeItem."""
         self.funcargs = {}
-        super(MoleculeItem, self).__init__(name, parent)
+        super().__init__(name, parent)
         with open(str(self.fspath), "r") as stream:
             data = yaml.load(stream, Loader=yaml.SafeLoader)
             # we add the driver as mark
             self.molecule_driver = data["driver"]["name"]
             self.add_marker(self.molecule_driver)
             # we also add platforms as marks
-            for x in data["platforms"]:
-                p = x["name"]
+            for platform in data["platforms"]:
+                platform_name = platform["name"]
                 self.config.addinivalue_line(
-                    "markers", "{0}: molecule platform name is {0}".format(p)
+                    "markers",
+                    "{0}: molecule platform name is {0}".format(platform_name),
                 )
-                self.add_marker(p)
+                self.add_marker(platform_name)
             self.add_marker("molecule")
             if (
                 self.config.option.molecule_unavailable_driver
@@ -169,10 +187,11 @@ class MoleculeItem(pytest.Item):
                 self.add_marker(self.config.option.molecule_unavailable_driver)
 
     def runtest(self):
+        """Perform effective test run."""
         folders = self.fspath.dirname.split(os.sep)
         cwd = os.path.abspath(os.path.join(self.fspath.dirname, "../.."))
         scenario = folders[-1]
-        role = folders[-3]  # noqa
+        # role = folders[-3]  # noqa
         cmd = [sys.executable, "-m", "molecule", self.name, "-s", scenario]
 
         # We append the additional options to molecule call, allowing user to
@@ -188,19 +207,20 @@ class MoleculeItem(pytest.Item):
 
             if sys.version_info.major == 2:
                 # https://bugs.python.org/issue13202
-                p = subprocess.Popen(
+                proc = subprocess.Popen(
                     cmd,
                     cwd=cwd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     universal_newlines=True,
                 )
-                for line in p.stdout:
+                for line in proc.stdout:
                     print(line, end="")
-                p.wait()
-                if p.returncode != 0:
+                proc.wait()
+                if proc.returncode != 0:
                     pytest.fail(
-                        "Error code %s returned by: %s" % (p.returncode, " ".join(cmd)),
+                        "Error code %s returned by: %s"
+                        % (proc.returncode, " ".join(cmd)),
                         pytrace=False,
                     )
             else:
@@ -210,27 +230,29 @@ class MoleculeItem(pytest.Item):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     universal_newlines=True,
-                ) as p:
-                    for line in p.stdout:
+                ) as proc:
+                    for line in proc.stdout:
                         print(line, end="")
-                    p.wait()
-                    if p.returncode != 0:
+                    proc.wait()
+                    if proc.returncode != 0:
                         pytest.fail(
                             "Error code %s returned by: %s"
-                            % (p.returncode, " ".join(cmd)),
+                            % (proc.returncode, " ".join(cmd)),
                             pytrace=False,
                         )
-        except Exception as e:
+        except Exception as exc:  # pylint: disable=broad-except
             pytest.fail(
-                "Exception %s returned by: %s" % (e, " ".join(cmd)), pytrace=False
+                "Exception %s returned by: %s" % (exc, " ".join(cmd)), pytrace=False
             )
 
     def reportinfo(self):
+        """Return representation of test location when in verbose mode."""
         return self.fspath, 0, "usecase: %s" % self.name
 
     def __str__(self):
+        """Return name of the test."""
         return "{}[{}]".format(self.name, self.molecule_driver)
 
 
 class MoleculeException(Exception):
-    """ custom exception for error reporting. """
+    """Custom exception for error reporting."""
