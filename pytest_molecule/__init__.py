@@ -87,29 +87,6 @@ def pytest_configure(config):
                 "{0}: mark test to run only when {0} is available".format(driver),
             )
             config.option.molecule[driver] = {"available": True}
-            if driver == "docker":
-                try:
-                    import docker  # pylint: disable=unused-import,import-outside-toplevel,import-error
-
-                    # validate docker connectivity
-                    # Default docker value is 60s but we want to fail faster
-                    # With parallel execution 5s proved to give errors.
-                    connection = docker.from_env(timeout=10, version="auto")
-                    if not connection.ping():
-                        raise MoleculeException("Failed to ping docker server.")
-
-                except (ImportError, MoleculeException) as exc:
-                    msg = "Molecule {} driver is not available due to: {}.".format(
-                        driver, exc
-                    )
-                    if config.option.molecule_unavailable_driver:
-                        msg += (
-                            " We will tag scenarios using it with '{}' marker.".format(
-                                config.option.molecule_unavailable_driver
-                            )
-                        )
-                    logging.getLogger().warning(msg)
-                    config.option.molecule[driver]["available"] = False
 
         config.addinivalue_line(
             "markers", "molecule: mark used by all molecule scenarios"
