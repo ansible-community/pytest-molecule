@@ -182,15 +182,13 @@ class MoleculeItem(pytest.Item):
             # Workaround for STDOUT/STDERR line ordering issue:
             # https://github.com/pytest-dev/pytest/issues/5449
 
-            if sys.version_info.major == 2:
-                # https://bugs.python.org/issue13202
-                proc = subprocess.Popen(
-                    cmd,
-                    cwd=cwd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
-                )
+            with subprocess.Popen(
+                cmd,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            ) as proc:
                 for line in proc.stdout:
                     print(line, end="")
                 proc.wait()
@@ -200,23 +198,6 @@ class MoleculeItem(pytest.Item):
                         % (proc.returncode, " ".join(cmd)),
                         pytrace=False,
                     )
-            else:
-                with subprocess.Popen(
-                    cmd,
-                    cwd=cwd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
-                ) as proc:
-                    for line in proc.stdout:
-                        print(line, end="")
-                    proc.wait()
-                    if proc.returncode != 0:
-                        pytest.fail(
-                            "Error code %s returned by: %s"
-                            % (proc.returncode, " ".join(cmd)),
-                            pytrace=False,
-                        )
         except Exception as exc:  # pylint: disable=broad-except
             pytest.fail(
                 "Exception %s returned by: %s" % (exc, " ".join(cmd)), pytrace=False
