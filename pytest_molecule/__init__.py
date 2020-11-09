@@ -22,25 +22,24 @@ if TYPE_CHECKING:
     from _pytest.nodes import Node
 
 
+def _addoption(group, parser, ini_dest, default, help_msg):
+    opt = "--" + ini_dest.replace("_", "-")
+    group.addoption(opt, action="store", dest=ini_dest, default=default, help=help_msg)
+    parser.addini(ini_dest, help_msg, default=default)
+
+
 def pytest_addoption(parser):
     """Inject new command line options to pytest."""
     group = parser.getgroup("molecule")
-    help_msg = (
+
+    _addoption(
+        group,
+        parser,
+        "molecule_unavailable_driver",
+        None,
         "What marker to add to molecule scenarios when driver is "
-        "unavailable. (ex: skip, xfail). Default: None"
+        "unavailable. (ex: skip, xfail). Default: None",
     )
-    default = None
-    dest = "molecule_unavailable_driver"
-
-    group.addoption(
-        "--molecule-unavailable-driver",
-        action="store",
-        dest=dest,
-        default=default,
-        help=help_msg,
-    )
-
-    parser.addini(dest, help_msg, default=default)
 
 
 def pytest_configure(config):
