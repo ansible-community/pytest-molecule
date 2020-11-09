@@ -89,6 +89,11 @@ def pytest_configure(config):
             config.option.molecule[driver] = {"available": True}
 
         config.addinivalue_line(
+            "markers",
+            "no_driver: mark used for scenarios that do not contain driver info",
+        )
+
+        config.addinivalue_line(
             "markers", "molecule: mark used by all molecule scenarios"
         )
 
@@ -144,12 +149,17 @@ class MoleculeItem(pytest.Item):
         self.funcargs = {}
         super().__init__(name, parent)
         with open(str(self.fspath), "r") as stream:
-            data = yaml.load(stream, Loader=yaml.SafeLoader)
+            # If the molecule.yml file is empty, YAML loader returns None. To
+            # simplify things down the road, we replace None with an empty
+            # dict.
+            data = yaml.load(stream, Loader=yaml.SafeLoader) or {}
+
             # we add the driver as mark
-            self.molecule_driver = data["driver"]["name"]
+            self.molecule_driver = data.get("driver", {}).get("name", "no_driver")
             self.add_marker(self.molecule_driver)
+
             # we also add platforms as marks
-            for platform in data["platforms"]:
+            for platform in data.get("platforms", []):
                 platform_name = platform["name"]
                 self.config.addinivalue_line(
                     "markers",
