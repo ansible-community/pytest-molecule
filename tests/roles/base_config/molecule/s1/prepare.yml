@@ -1,0 +1,8 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: This should not be executed if base config file is loaded
+      fail:
+        msg: Base config file loading is not working as expected

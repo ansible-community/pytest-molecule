@@ -1,0 +1,7 @@
+- name: Converge
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Converge on s1
+      debug:
+        msg: Scenario 1
