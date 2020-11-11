@@ -42,6 +42,9 @@ markers_, so you can selectively limit which test types to run:
     # Runs scenarios with platform named centos7 and delegated driver:
     $ pytest -m delegated -m centos7
 
+If the molecule scenario does not contain information about the driver, the
+test associated with it gets a ``no_driver`` mark.
+
 Please note that at this moment molecule will run the entire scenario if the
 markers are platforms, this is not *yet* a way to limit which platforms are
 executed inside a specific scenario.
