@@ -21,6 +21,8 @@ from molecule.config import ansible_version
 if TYPE_CHECKING:
     from _pytest.nodes import Node
 
+LOGGER = logging.getLogger(__name__)
+
 
 def _addoption(group, parser, ini_dest, default, help_msg):
     opt = "--" + ini_dest.replace("_", "-")
@@ -123,6 +125,11 @@ def pytest_configure(config):
 
 def pytest_collect_file(parent, path) -> Optional["Node"]:
     """Transform each found molecule.yml into a pytest test."""
+
+    # We do not want to recognize paths with symlinks as valid
+    if os.path.realpath(path) != path:
+        return None
+
     if path.basename == "molecule.yml":
         if hasattr(MoleculeFile, "from_parent"):
             return MoleculeFile.from_parent(fspath=path, parent=parent)
