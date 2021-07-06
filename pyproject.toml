@@ -1,12 +1,19 @@
 [build-system]
 requires = [
-  "setuptools >= 41.0.0",
-  "setuptools_scm >= 1.15.0",
-  "setuptools_scm_git_archive >= 1.0",
-  "wheel",
+  "pip >= 19.3.1",
+  "setuptools >= 42",
+  "setuptools_scm[toml] >= 3.5.0",
+  "setuptools_scm_git_archive >= 1.1",
+  "wheel >= 0.33.6",
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.black]
+skip-string-normalization = false
+
+[tool.isort]
+profile = "black"
+known_first_party = "molecule"
 [tool.pylint.master]
 ignored-modules = [
   "molecule",
@@ -14,3 +21,6 @@ ignored-modules = [
   "yaml",
   "_pytest"
 ]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
