@@ -56,6 +56,17 @@ This plugin also adds a new pytest option named
 when molecule drivers are not loading. Current default is ``None`` but you
 can choose marks like ``skip`` or ``xfail``.
 
+Using xfail and skip markers
+----------------------------
+
+If you need to skip or ignore a particular scenario, just add either ``xfail``
+or ``skip`` to markers list inside its config file.
+
+.. code-block:: yaml
+
+    markers:
+      - xfail  # broken scenario, pytest will run it but ignore the result
+
 Installation
 ------------
 

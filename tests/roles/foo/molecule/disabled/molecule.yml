@@ -1,0 +1,17 @@
+---
+driver:
+  name: delegated
+
+platforms:
+  - name: localhost
+
+provisioner:
+  name: ansible
+  log: true
+
+scenario:
+  test_sequence:
+    - converge
+
+markers:
+  - xfail

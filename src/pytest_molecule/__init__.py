@@ -173,6 +173,19 @@ class MoleculeItem(pytest.Item):
             self.molecule_driver = data.get("driver", {}).get("name", "no_driver")
             self.add_marker(self.molecule_driver)
 
+            # check for known markers and add them
+            markers = data.get("markers", [])
+            if "xfail" in markers:
+                self.add_marker(
+                    pytest.mark.xfail(
+                        reason="Marked as broken by scenario configuration."
+                    )
+                )
+            if "skip" in markers:
+                self.add_marker(
+                    pytest.mark.skip(reason="Disabled by scenario configuration.")
+                )
+
             # we also add platforms as marks
             for platform in data.get("platforms", []):
                 platform_name = platform["name"]
