@@ -1,11 +1,18 @@
 ---
 repos:
   - repo: https://github.com/PyCQA/doc8.git
-    rev: 0.9.0a1
+    rev: 0.9.0
     hooks:
       - id: doc8
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.9.3
+    hooks:
+      - id: isort
+        args:
+          # https://github.com/pre-commit/mirrors-isort/issues/9#issuecomment-624404082
+          - --filter-files
   - repo: https://github.com/python/black
-    rev: 21.6b0
+    rev: 21.7b0
     hooks:
       - id: black
         language_version: python3
@@ -59,7 +66,7 @@ repos:
           - types-PyYAML
           - types-setuptools
   - repo: https://github.com/pre-commit/mirrors-pylint
-    rev: v3.0.0a3
+    rev: v3.0.0a4
     hooks:
       - id: pylint
         additional_dependencies: []
