@@ -1,11 +1,11 @@
 ---
 repos:
   - repo: https://github.com/PyCQA/doc8.git
-    rev: 0.9.1
+    rev: 0.10.1
     hooks:
       - id: doc8
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.0
+    rev: 5.10.1
     hooks:
       - id: isort
         args:
