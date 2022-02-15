@@ -9,6 +9,7 @@ import shlex
 import subprocess
 import sys
 import warnings
+from pathlib import Path
 from pipes import quote
 from typing import TYPE_CHECKING, Optional
 
@@ -125,17 +126,14 @@ def pytest_configure(config):
                 # selinux bindings are not guaranteed to fail molecule execution.
 
 
-def pytest_collect_file(parent, path) -> Optional["Node"]:
+def pytest_collect_file(
+    parent: pytest.Collector, file_path: Optional["Path"]
+) -> Optional["Node"]:
     """Transform each found molecule.yml into a pytest test."""
-
-    # We do not want to recognize paths with symlinks as valid
-    if os.path.realpath(path) != path:
+    if file_path and file_path.is_symlink():
         return None
-
-    if path.basename == "molecule.yml":
-        if hasattr(MoleculeFile, "from_parent"):
-            return MoleculeFile.from_parent(fspath=path, parent=parent)
-        return MoleculeFile(path, parent)
+    if file_path and file_path.name == "molecule.yml":
+        return MoleculeFile.from_parent(path=file_path, parent=parent)
     return None
 
 
@@ -151,7 +149,7 @@ class MoleculeFile(pytest.File):
 
     def __str__(self):
         """Return test name string representation."""
-        return str(self.fspath.relto(os.getcwd()))
+        return str(self.path.relative_to(os.getcwd()))
 
 
 class MoleculeItem(pytest.Item):
@@ -164,7 +162,8 @@ class MoleculeItem(pytest.Item):
         """Construct MoleculeItem."""
         self.funcargs = {}
         super().__init__(name, parent)
-        with open(str(self.fspath), "r") as stream:
+        moleculeyml = self.path
+        with open(str(moleculeyml), "r") as stream:
             # If the molecule.yml file is empty, YAML loader returns None. To
             # simplify things down the road, we replace None with an empty
             # dict.
@@ -204,8 +203,9 @@ class MoleculeItem(pytest.Item):
 
     def runtest(self):
         """Perform effective test run."""
-        folders = self.fspath.dirname.split(os.sep)
-        cwd = os.path.abspath(os.path.join(self.fspath.dirname, "../.."))
+        folder = self.path.parent
+        folders = folder.parts
+        cwd = os.path.abspath(os.path.join(folder, "../.."))
         scenario = folders[-1]
         # role = folders[-3]  # noqa
 
