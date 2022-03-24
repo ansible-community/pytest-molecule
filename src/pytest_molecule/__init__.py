@@ -66,22 +66,23 @@ def pytest_configure(config):
     ]
 
     # Add extra information that may be key for debugging failures
-    for package in ["molecule"]:
-        config._metadata["Packages"][package] = pkg_resources.get_distribution(
-            package
-        ).version
+    if hasattr(config, "_metadata"):
+        for package in ["molecule"]:
+            config._metadata["Packages"][package] = pkg_resources.get_distribution(
+                package
+            ).version
 
-    if "Tools" not in config._metadata:
-        config._metadata["Tools"] = {}
-    config._metadata["Tools"]["ansible"] = str(ansible_version())
+        if "Tools" not in config._metadata:
+            config._metadata["Tools"] = {}
+        config._metadata["Tools"]["ansible"] = str(ansible_version())
 
-    # Adds interesting env vars
-    env = ""
-    for key, value in sorted(os.environ.items()):
-        for var_name in interesting_env_vars:
-            if key.startswith(var_name):
-                env += f"{key}={value} "
-    config._metadata["env"] = env
+        # Adds interesting env vars
+        env = ""
+        for key, value in sorted(os.environ.items()):
+            for var_name in interesting_env_vars:
+                if key.startswith(var_name):
+                    env += f"{key}={value} "
+        config._metadata["env"] = env
 
     # We hide DeprecationWarnings thrown by driver loading because these are
     # outside our control and worse: they are displayed even on projects that
