@@ -22,12 +22,6 @@ jobs:
         include:
           - tox_env: linters
             python-version: "3.10"
-          - tox_env: py36
-            PREFIX: PYTEST_REQPASS=1
-            python-version: 3.6
-          - tox_env: py37
-            PREFIX: PYTEST_REQPASS=1
-            python-version: 3.7
           - tox_env: py38
             PREFIX: PYTEST_REQPASS=1
             python-version: 3.8
