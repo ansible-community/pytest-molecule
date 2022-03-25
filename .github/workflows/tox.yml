@@ -13,7 +13,7 @@ on:
     - cron: 1 0 * * *  # Run daily at 0:01 UTC
 
 jobs:
-  build:
+  tox_matrix:
     name: ${{ matrix.tox_env }}
     runs-on: ubuntu-latest
     strategy:
@@ -22,12 +22,6 @@ jobs:
         include:
           - tox_env: linters
             python-version: "3.10"
-          - tox_env: py36
-            PREFIX: PYTEST_REQPASS=1
-            python-version: 3.6
-          - tox_env: py37
-            PREFIX: PYTEST_REQPASS=1
-            python-version: 3.7
           - tox_env: py38
             PREFIX: PYTEST_REQPASS=1
             python-version: 3.8
@@ -57,3 +51,17 @@ jobs:
         run: |
           echo "${{ matrix.PREFIX }} tox -e ${{ matrix.tox_env }}"
           ${{ matrix.PREFIX }} tox -e ${{ matrix.tox_env }}
+
+  check:  # This job does nothing and is only used for the branch protection
+    if: always()
+
+    needs:
+      - tox_matrix
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
