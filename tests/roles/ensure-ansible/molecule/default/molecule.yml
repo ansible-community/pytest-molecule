@@ -3,8 +3,6 @@ driver:
   name: docker
 
 platforms:
-
-
   # pip cache cannot be shared due to multiple bugs:
   # - python2 cache incompatible with python3 https://github.com/pypa/pip/issues/5250
   # - concurrency issues

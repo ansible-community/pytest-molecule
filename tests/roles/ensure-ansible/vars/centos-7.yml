@@ -6,7 +6,7 @@ pre_packages:
 packages:
   - bash
   - rsync
-  - gcc  # compiling psutil
+  - gcc # compiling psutil
   - python2-devel
   - python2-pip
   - python2-psutil
