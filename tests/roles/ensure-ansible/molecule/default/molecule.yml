@@ -63,8 +63,6 @@ platforms:
 
 provisioner:
   name: ansible
-  env:
-    ANSIBLE_STDOUT_CALLBACK: yaml
   log: true
   config_options:
     defaults:
