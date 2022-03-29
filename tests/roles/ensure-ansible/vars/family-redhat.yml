@@ -4,7 +4,7 @@
 # fedora>=28
 packages:
   - bash
-  - gcc  # compiling psutil
+  - gcc # compiling psutil
   - python3-devel
   - python3-libselinux
   - python3-psutil
