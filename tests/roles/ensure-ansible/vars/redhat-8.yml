@@ -4,9 +4,8 @@ pre_packages:
 packages:
   - bash
   - rsync
-  - gcc  # compiling psutil
+  - gcc # compiling psutil
   - python36-devel
   - python3-libselinux
-
 # RHEL 8 is missing:
 # python3-psutil

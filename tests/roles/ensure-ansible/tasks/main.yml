@@ -1,5 +1,4 @@
 ---
-
 - name: gather_fact fallback block
   block:
     - name: Attempt to gather facts

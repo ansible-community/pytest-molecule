@@ -1,5 +1,4 @@
 ---
-
 - name: Converge
   hosts: all
   # avoid gather as setup module fails when python is missing (ubuntu:latest)
@@ -10,7 +9,6 @@
   vars:
     test_dir: /root/src
   tasks:
-
     - name: ensure-ansible role
       include_role:
         name: ensure-ansible
@@ -24,7 +22,7 @@
       file:
         path: "{{ test_dir }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Deploy package wheel(s)
       copy:

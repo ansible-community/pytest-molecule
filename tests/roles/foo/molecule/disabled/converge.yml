@@ -2,7 +2,6 @@
   hosts: all
   gather_facts: false
   tasks:
-
     - name: Impossible task
       fail:
         msg: "That playbook should never pass!"

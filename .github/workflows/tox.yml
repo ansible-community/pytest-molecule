@@ -1,16 +1,16 @@
 name: tox
 
 on:
-  create:  # is used for publishing to PyPI and TestPyPI
-    tags:  # any tag regardless of its name, no branches
-  push:  # only publishes pushes to the main branch to TestPyPI
-    branches:  # any integration branch but not tag
+  create: # is used for publishing to PyPI and TestPyPI
+    tags: # any tag regardless of its name, no branches
+  push: # only publishes pushes to the main branch to TestPyPI
+    branches: # any integration branch but not tag
       - "main"
     tags-ignore:
       - "**"
   pull_request:
   schedule:
-    - cron: 1 0 * * *  # Run daily at 0:01 UTC
+    - cron: 1 0 * * * # Run daily at 0:01 UTC
 
 jobs:
   tox_matrix:
@@ -52,7 +52,7 @@ jobs:
           echo "${{ matrix.PREFIX }} tox -e ${{ matrix.tox_env }}"
           ${{ matrix.PREFIX }} tox -e ${{ matrix.tox_env }}
 
-  check:  # This job does nothing and is only used for the branch protection
+  check: # This job does nothing and is only used for the branch protection
     if: always()
 
     needs:
