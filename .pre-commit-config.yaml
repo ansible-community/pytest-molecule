@@ -2,14 +2,14 @@
 repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
     # keep it before yamllint
-    rev: "v2.5.1"
+    rev: "v2.6.2"
     hooks:
       - id: prettier
         additional_dependencies:
           - prettier
           - prettier-plugin-toml
   - repo: https://github.com/PyCQA/doc8.git
-    rev: 0.10.1
+    rev: 0.11.1
     hooks:
       - id: doc8
   - repo: https://github.com/PyCQA/isort
