@@ -61,6 +61,7 @@ def pytest_addoption(parser):
         "changed since this commit skip the test. Default: None",
     )
 
+
 def pytest_configure(config):
     """Pytest hook for loading our specific configuration."""
     interesting_env_vars = [
@@ -231,8 +232,8 @@ class MoleculeItem(pytest.Item):
                     proc.wait()
                     if len(proc.stdout.readlines()) == 0:
                         pytest.skip("No change in role")
-            except Exception as exc: # pylint: disable=broad-except
-                pytest.fail("Error checking git diff. Error was:"+str(exc))
+            except Exception as exc:  # pylint: disable=broad-except
+                pytest.fail("Error checking git diff. Error was:" + str(exc))
 
         cmd.extend((self.name, "-s", scenario))
         # We append the additional options to molecule call, allowing user to
