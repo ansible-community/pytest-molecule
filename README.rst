@@ -56,6 +56,14 @@ This plugin also adds a new pytest option named
 when molecule drivers are not loading. Current default is ``None`` but you
 can choose marks like ``skip`` or ``xfail``.
 
+The plugin adds ``--skip-no-git-change`` option which an be used to skip tests
+on unchanged roles according to ``git diff`` result and thus can only be used
+only when running pytest inside a git repository. It takes one argument and old
+refspec used as a reference. For instance calling:
+``pytest --skip-no-git-change HEAD^`` will result in molecule of roles that
+weren't changed in the last commit being skipped.
+
+
 Using xfail and skip markers
 ----------------------------
 
