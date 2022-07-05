@@ -52,6 +52,14 @@ def pytest_addoption(parser):
         "Path to the molecule base config file. The value of this option is "
         "passed to molecule via the --base-config flag. Default: None",
     )
+    _addoption(
+        group,
+        parser,
+        "skip_no_git_change",
+        None,
+        "Commit to use as a reference for this test. If the role wasn't"
+        "changed since this commit skip the test. Default: None",
+    )
 
 
 def pytest_configure(config):
@@ -212,6 +220,21 @@ class MoleculeItem(pytest.Item):
         cmd = [sys.executable, "-m", "molecule"]
         if self.config.option.molecule_base_config:
             cmd.extend(("--base-config", self.config.option.molecule_base_config))
+        if self.config.option.skip_no_git_change:
+            try:
+                with subprocess.Popen(
+                    ["git", "diff", self.config.option.skip_no_git_change, "--", "./"],
+                    cwd=cwd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
+                ) as proc:
+                    proc.wait()
+                    if len(proc.stdout.readlines()) == 0:
+                        pytest.skip("No change in role")
+            except Exception as exc:  # pylint: disable=broad-except
+                pytest.fail("Error checking git diff. Error was:" + str(exc))
+
         cmd.extend((self.name, "-s", scenario))
         # We append the additional options to molecule call, allowing user to
         # control how molecule is called by pytest-molecule
