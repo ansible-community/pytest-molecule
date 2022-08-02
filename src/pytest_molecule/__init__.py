@@ -104,7 +104,7 @@ def pytest_configure(config):
         for driver in map(str, drivers()):
             config.addinivalue_line(
                 "markers",
-                "{0}: mark test to run only when {0} is available".format(driver),
+                f"{driver}: mark test to run only when {driver} is available",
             )
             config.option.molecule[driver] = {"available": True}
 
@@ -171,7 +171,7 @@ class MoleculeItem(pytest.Item):
         self.funcargs = {}
         super().__init__(name, parent)
         moleculeyml = self.path
-        with open(str(moleculeyml), "r") as stream:
+        with open(str(moleculeyml), "r", encoding="utf-8") as stream:
             # If the molecule.yml file is empty, YAML loader returns None. To
             # simplify things down the road, we replace None with an empty
             # dict.
@@ -199,7 +199,7 @@ class MoleculeItem(pytest.Item):
                 platform_name = platform["name"]
                 self.config.addinivalue_line(
                     "markers",
-                    "{0}: molecule platform name is {0}".format(platform_name),
+                    f"{platform_name}: molecule platform name is {platform_name}",
                 )
                 self.add_marker(platform_name)
             self.add_marker("molecule")
@@ -242,7 +242,7 @@ class MoleculeItem(pytest.Item):
         if opts:
             cmd.extend(shlex.split(opts))
 
-        print("running: %s (from %s)" % (" ".join(quote(arg) for arg in cmd), cwd))
+        print(f"running: {' '.join(quote(arg) for arg in cmd)} (from {cwd})")
         try:
             # Workaround for STDOUT/STDERR line ordering issue:
             # https://github.com/pytest-dev/pytest/issues/5449
@@ -259,22 +259,19 @@ class MoleculeItem(pytest.Item):
                 proc.wait()
                 if proc.returncode != 0:
                     pytest.fail(
-                        "Error code %s returned by: %s"
-                        % (proc.returncode, " ".join(cmd)),
+                        f"Error code {proc.returncode} returned by: {' '.join(cmd)}",
                         pytrace=False,
                     )
         except Exception as exc:  # pylint: disable=broad-except
-            pytest.fail(
-                "Exception %s returned by: %s" % (exc, " ".join(cmd)), pytrace=False
-            )
+            pytest.fail(f"Exception {exc} returned by: {' '.join(cmd)}", pytrace=False)
 
     def reportinfo(self):
         """Return representation of test location when in verbose mode."""
-        return self.fspath, 0, "usecase: %s" % self.name
+        return self.fspath, 0, f"usecase: {self.name}"
 
     def __str__(self):
         """Return name of the test."""
-        return "{}[{}]".format(self.name, self.molecule_driver)
+        return f"{self.name}[{self.molecule_driver}]"
 
 
 class MoleculeException(Exception):
