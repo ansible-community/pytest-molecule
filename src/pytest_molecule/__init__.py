@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """pytest-molecule plugin implementation."""
 # pylint: disable=protected-access
-from __future__ import print_function
 
 import logging
 import os
@@ -10,7 +8,7 @@ import subprocess
 import sys
 import warnings
 from pathlib import Path
-from pipes import quote
+from shlex import quote
 from typing import TYPE_CHECKING, Optional
 
 import pkg_resources
@@ -171,7 +169,7 @@ class MoleculeItem(pytest.Item):
         self.funcargs = {}
         super().__init__(name, parent)
         moleculeyml = self.path
-        with open(str(moleculeyml), "r", encoding="utf-8") as stream:
+        with open(str(moleculeyml), encoding="utf-8") as stream:
             # If the molecule.yml file is empty, YAML loader returns None. To
             # simplify things down the road, we replace None with an empty
             # dict.
