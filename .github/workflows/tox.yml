@@ -31,9 +31,12 @@ jobs:
           - tox_env: py310
             PREFIX: PYTEST_REQPASS=1
             python-version: "3.10"
+          - tox_env: py311
+            PREFIX: PYTEST_REQPASS=1
+            python-version: "3.11"
           - tox_env: devel
             PREFIX: PYTEST_REQPASS=1
-            python-version: "3.10"
+            python-version: "3.11"
           - tox_env: packaging
             python-version: "3.10"
 
