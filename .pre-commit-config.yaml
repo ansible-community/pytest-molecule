@@ -5,7 +5,7 @@ default_language_version:
 repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
     # keep it before yamllint
-    rev: "v3.0.0-alpha.2"
+    rev: "v3.0.0-alpha.3"
     hooks:
       - id: prettier
         additional_dependencies:
