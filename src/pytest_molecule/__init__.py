@@ -9,7 +9,7 @@ import sys
 import warnings
 from pathlib import Path
 from shlex import quote
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Tuple
 
 import pkg_resources
 import pytest
@@ -57,6 +57,13 @@ def pytest_addoption(parser):
         None,
         "Commit to use as a reference for this test. If the role wasn't"
         "changed since this commit skip the test. Default: None",
+    )
+    _addoption(
+        group,
+        parser,
+        "include_scenarios",
+        None,
+        "Comma separated list of scenarios to be executed. Default: []",
     )
     _addoption(
         group,
@@ -152,24 +159,31 @@ def pytest_collect_file(
 
 def validate_scenario(file_path: Path) -> bool:
     """Check if scenario is allowed based on MOLECULE_OPTS."""
-    skip_scenarios = get_scenarios_list()
+    include_scenarios, skip_scenarios = get_scenarios_list()
     scenario = file_path.parent.parts[-1]
     if scenario in skip_scenarios:
+        return False
+    if include_scenarios:
+        if scenario in include_scenarios:
+            return True
         return False
     return True
 
 
-def get_scenarios_list() -> list:
-    """Split MOLECULE_OPTS to obtain scenarios to skip."""
+def get_scenarios_list() -> Tuple:
+    """Split MOLECULE_OPTS to obtain scenarios to skip and scenarios to run."""
+    include_scenarios = []
     skip_scenarios = []
     for option in shlex.split(os.environ.get("MOLECULE_OPTS", "")):
         try:
             opt, val = option.split("=")
+            if opt == "--include-scenarios" and val:
+                include_scenarios.extend(val.split(","))
             if opt == "--skip-scenarios" and val:
                 skip_scenarios.extend(val.split(","))
         except ValueError:
             continue
-    return skip_scenarios
+    return include_scenarios, skip_scenarios
 
 
 class MoleculeFile(pytest.File):
