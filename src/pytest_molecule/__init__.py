@@ -58,6 +58,13 @@ def pytest_addoption(parser):
         "Commit to use as a reference for this test. If the role wasn't"
         "changed since this commit skip the test. Default: None",
     )
+    _addoption(
+        group,
+        parser,
+        "skip_scenarios",
+        None,
+        "Comma separated list of scenarios that should not be executed. Default: []",
+    )
 
 
 def pytest_configure(config):
@@ -138,9 +145,31 @@ def pytest_collect_file(
     """Transform each found molecule.yml into a pytest test."""
     if file_path and file_path.is_symlink():
         return None
-    if file_path and file_path.name == "molecule.yml":
+    if file_path and file_path.name == "molecule.yml" and validate_scenario(file_path):
         return MoleculeFile.from_parent(path=file_path, parent=parent)
     return None
+
+
+def validate_scenario(file_path: Path) -> bool:
+    """Check if scenario is allowed based on MOLECULE_OPTS."""
+    skip_scenarios = get_scenarios_list()
+    scenario = file_path.parent.parts[-1]
+    if scenario in skip_scenarios:
+        return False
+    return True
+
+
+def get_scenarios_list() -> list:
+    """Split MOLECULE_OPTS to obtain scenarios to skip."""
+    skip_scenarios = []
+    for option in shlex.split(os.environ.get("MOLECULE_OPTS", "")):
+        try:
+            opt, val = option.split("=")
+            if opt == "--skip-scenarios" and val:
+                skip_scenarios.extend(val.split(","))
+        except ValueError:
+            continue
+    return skip_scenarios
 
 
 class MoleculeFile(pytest.File):
