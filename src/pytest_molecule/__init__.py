@@ -282,7 +282,10 @@ class MoleculeItem(pytest.Item):
         opts = os.environ.get("MOLECULE_OPTS")
         if opts:
             for opt in shlex.split(opts):
-                if not any(opt.startswith(x) for x in ["--include-scenarios", "--skip-scenarios"]):
+                if not any(
+                    opt.startswith(x)
+                    for x in ["--include-scenarios", "--skip-scenarios"]
+                ):
                     cmd.append(opt)
 
         print(f"running: {' '.join(quote(arg) for arg in cmd)} (from {cwd})")
