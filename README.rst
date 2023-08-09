@@ -1,4 +1,13 @@
 ===============
+Notice
+===============
+
+The functionality provided by this plugin has been merged into the pytest-ansible_ plugin.
+
+Please switch to `pytest-ansible` for future updates.
+
+
+===============
 pytest-molecule
 ===============
 
@@ -112,3 +121,4 @@ description.
 .. _`pip`: https://pypi.org/project/pip/
 .. _`PyPI`: https://pypi.org/project
 .. _markers: http://doc.pytest.org/en/latest/example/markers.html
+.. _pytest-ansible: https://github.com/ansible-community/pytest-ansible
